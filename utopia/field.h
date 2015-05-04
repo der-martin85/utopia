@@ -15,13 +15,14 @@ class field {
 public:
 	field(int x, int y);
 	~field();
+	bool loadMedia(SDL_Renderer * renderer);
 	bool stillRunning();
 	void increaseRuns();
 	bool testAndDecrease();
 
 	void setMouseState();
 
-	void render();
+	void render(SDL_Renderer * renderer, int screenWidth, int screenHeight);
 
 	void changeZoom(int change);
 	void changePosX(int change);
@@ -52,6 +53,14 @@ private:
 	int zoom;
 	unsigned int runs;
 	pthread_mutex_t mutex;
+
+	SDL_Surface* groundIMG[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
+
+	SDL_Surface* selectedIMG = NULL;
+
+	SDL_Texture* groundTextures[6] = {NULL,NULL,NULL,NULL, NULL, NULL};
+
+	SDL_Texture* selectedTexture = NULL;
 
 };
 

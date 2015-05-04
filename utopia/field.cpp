@@ -8,106 +8,36 @@
 #include "field.h"
 #include "SDL2/SDL_image.h"
 
-//Starts up SDL and creates window
-bool init();
-
-//Loads media
-bool loadMedia();
-
-//Frees media and shuts down SDL
-void close();
-
-//The window we'll be rendering to
-SDL_Window* gWindow = NULL;
-
-//The surface contained by the window
-SDL_Surface* gScreenSurface = NULL;
-
-SDL_Renderer * renderer = NULL;
-
-//The image we will load and show on the screen
-SDL_Surface* ground[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
-
-SDL_Surface* selected = NULL;
-
-SDL_Texture* groundTextures[6] = {NULL,NULL,NULL,NULL, NULL, NULL};
-
-SDL_Texture* selectedTexture = NULL;
-
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 800;
-
-bool init() {
-	//Initialization flag
-	bool success = true;
-	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
-		success = false;
-	} else {
-		//Create window
-		gWindow = SDL_CreateWindow( "Utopia 3",
-				SDL_WINDOWPOS_UNDEFINED,
-				SDL_WINDOWPOS_UNDEFINED,
-				SCREEN_WIDTH,
-				SCREEN_HEIGHT,
-				SDL_WINDOW_SHOWN );
-		if( gWindow == NULL ) {
-			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
-			success = false;
-		} else {
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface( gWindow );
-			renderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED);
-		}
-	}
-	return success;
-}
-
-bool loadMedia()
+bool field::loadMedia(SDL_Renderer * renderer)
 {
     //Loading success flag
     bool success = true;
 
     //Load splash image
     //gHelloWorld = SDL_LoadBMP( "02_getting_an_image_on_the_screen/hello_world.bmp" );
-    ground[0] = IMG_Load("./images/sand.png");
-    ground[1] = IMG_Load("./images/gras.png");
-    ground[2] = IMG_Load("./images/trees.png");
-    ground[3] = IMG_Load("./images/forest.png");
-    ground[4] = IMG_Load("./images/water0.png");
-    ground[5] = IMG_Load("./images/water1.png");
+    groundIMG[0] = IMG_Load("./images/sand.png");
+    groundIMG[1] = IMG_Load("./images/gras.png");
+    groundIMG[2] = IMG_Load("./images/trees.png");
+    groundIMG[3] = IMG_Load("./images/forest.png");
+    groundIMG[4] = IMG_Load("./images/water0.png");
+    groundIMG[5] = IMG_Load("./images/water1.png");
 
-    selected = IMG_Load("./images/selected.png");
-    if(ground[0] == NULL )
+    selectedIMG = IMG_Load("./images/selected.png");
+    if(groundIMG[0] == NULL )
     {
         printf( "Unable to load image");
         success = false;
     }
 
     for (int i = 0; i < 6; i++) {
-    	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, ground[i]);
+    	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, groundIMG[i]);
     }
 
-    selectedTexture = SDL_CreateTextureFromSurface(renderer, selected);;
+    selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
 
     return success;
 }
 
-void close() {
-    for (int i = 0; i < 4; i++) {
-    	SDL_DestroyTexture(groundTextures[i]);
-    	//Deallocate surface
-    	SDL_FreeSurface(ground[i]);
-    }
-    SDL_DestroyRenderer(renderer);
-
-	//Destroy window
-	SDL_DestroyWindow( gWindow );
-	gWindow = NULL;
-	//Quit SDL subsystems
-	SDL_Quit();
-}
 
 field::field(int x, int y):
 		selected{-1, -1, -1, -1},
@@ -117,15 +47,6 @@ field::field(int x, int y):
 		zoom(16),
 		runs(0)
 {
-			//Start up SDL and create window
-			if( !init() ) {
-				printf( "Failed to initialize!\n" );
-			} else {
-				//Load media
-				if( !loadMedia() ) {
-					printf( "Failed to load media!\n" );
-				}
-			}
 	pthread_mutex_init(&mutex, NULL);
 	map = new int*[x];
 	for (int i = 0; i < x; i++) {
@@ -133,7 +54,12 @@ field::field(int x, int y):
 	}
 }
 field::~field() {
-	close();
+    for (int i = 0; i < 4; i++) {
+    	SDL_DestroyTexture(groundTextures[i]);
+    	//Deallocate surface
+    	SDL_FreeSurface(groundIMG[i]);
+    }
+
 	for (int i = 0; i < fx; i++) {
 		delete[] map[fx];
 	}
@@ -178,15 +104,12 @@ void field::setMouseState() {
 	   selected[0] = miX;
 	   selected[1] = miY;
 }
-void field::render() {
-	SDL_RenderClear(renderer);
-
-
+void field::render(SDL_Renderer * renderer, int screenWidth, int screenHeight) {
 	for (int y = 0; y < fy; y++) {
 		for (int x = fx-1; x >= 0 ; x--) {
 			SDL_Rect dstrect = isoTo2D(x, y);
 			if (dstrect.x + dstrect.w > 0 && dstrect.y + dstrect.h > 0 &&
-				   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT) {
+				   dstrect.x < screenWidth && dstrect.y < screenHeight) {
 				lock();
 			   SDL_RenderCopy(renderer, groundTextures[map[x][y]], NULL, &dstrect);
 			   if (((selected[2] > -1) &&
@@ -203,7 +126,6 @@ void field::render() {
 	   }
    }
 
-	SDL_RenderPresent(renderer);
 }
 
 void field::changeZoom(int change) {
@@ -302,11 +224,11 @@ void field::unlock() {
 }
 
 void field::changeToFullScreen() {
-	SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN);
+//	SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN);
 }
 
 void field::changeToWindow() {
-	SDL_SetWindowFullscreen(gWindow, 0);
+//	SDL_SetWindowFullscreen(gWindow, 0);
 }
 
 SDL_Rect field::isoTo2D(int x, int y) {

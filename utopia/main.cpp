@@ -55,24 +55,90 @@ int getField(int a, int b, int c, int d) {
 	return 0;
 }
 
-static int renderField(void* param) {
+//Starts up SDL and creates window
+bool init();
+
+//Loads media
+bool loadMedia();
+
+//Frees media and shuts down SDL
+void close();
+
+//The window we'll be rendering to
+SDL_Window* gWindow = NULL;
+
+//The surface contained by the window
+SDL_Surface* gScreenSurface = NULL;
+
+SDL_Renderer * renderer = NULL;
+
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 800;
+
+bool init() {
+	//Initialization flag
+	bool success = true;
+	//Initialize SDL
+	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
+		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+		success = false;
+	} else {
+		//Create window
+		gWindow = SDL_CreateWindow( "Utopia 3",
+				SDL_WINDOWPOS_UNDEFINED,
+				SDL_WINDOWPOS_UNDEFINED,
+				SCREEN_WIDTH,
+				SCREEN_HEIGHT,
+				SDL_WINDOW_SHOWN );
+		if( gWindow == NULL ) {
+			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
+			success = false;
+		} else {
+			//Get window surface
+			gScreenSurface = SDL_GetWindowSurface( gWindow );
+			renderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED);
+		}
+	}
+	return success;
+}
+
+void close() {
+    SDL_DestroyRenderer(renderer);
+
+	//Destroy window
+	SDL_DestroyWindow( gWindow );
+	gWindow = NULL;
+	//Quit SDL subsystems
+	SDL_Quit();
+}
+bool quit = false;
+
+static int rendererThread(void* param) {
 	field* f = (field*)param;
 
 	std::cout << "start render" << std::endl;
 
+	init();
+	f->loadMedia(renderer);
+
 	do {
+
+		SDL_RenderClear(renderer);
 		std::cout << "render" << std::endl;
-		f->render();
-	} while(f->testAndDecrease());
+		f->render(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+		SDL_RenderPresent(renderer);
+
+	} while(!quit); //while(f->testAndDecrease());
 
 	std::cout << "done render" << std::endl;
+
+	close();
 
 	return 0;
 }
 
 int main(int argc, char* argv[]) {
 
-    bool quit = false;
     SDL_Event event;
 
     const int fieldx = 100;
@@ -112,6 +178,8 @@ int main(int argc, char* argv[]) {
     SDL_Thread *renderThread = NULL;
 
 	//f.render();
+
+    renderThread = SDL_CreateThread(rendererThread, "RenderThread", (void *)(&f));
 
 	while (!quit)
 	{
@@ -192,14 +260,14 @@ int main(int argc, char* argv[]) {
 	   }
 
 //	   f.render();
-	   if (!f.stillRunning()) {
-		   if (renderThread != NULL) {
-			   SDL_WaitThread(renderThread, NULL);
-			   renderThread = NULL;
-		   }
-		   renderThread = SDL_CreateThread(renderField, "RenderThread", (void *)(&f));
-	   }
-	   f.increaseRuns();
+//	   if (!f.stillRunning()) {
+//		   if (renderThread != NULL) {
+//			   SDL_WaitThread(renderThread, NULL);
+//			   renderThread = NULL;
+//		   }
+//		   renderThread = SDL_CreateThread(rendererThread, "RenderThread", (void *)(&f));
+//	   }
+//	   f.increaseRuns();
 
 	}
    if (renderThread != NULL) {
