@@ -55,7 +55,7 @@ int getField(int a, int b, int c, int d) {
 	return 0;
 }
 
-void* renderField(void* param) {
+static int renderField(void* param) {
 	field* f = (field*)param;
 
 	std::cout << "start render" << std::endl;
@@ -67,7 +67,7 @@ void* renderField(void* param) {
 
 	std::cout << "done render" << std::endl;
 
-    pthread_exit(NULL);
+	return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -109,9 +109,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
-	pthread_t renderThread = 0;
+    SDL_Thread *renderThread = NULL;
 
-	f.render();
+	//f.render();
 
 	while (!quit)
 	{
@@ -192,13 +192,20 @@ int main(int argc, char* argv[]) {
 	   }
 
 //	   f.render();
-	           if (!f.stillRunning()) {
-	        	   pthread_join(renderThread, NULL);
-		           pthread_create(&renderThread, NULL, renderField, (void *)(&f));
-	           }
-	           f.increaseRuns();
+	   if (!f.stillRunning()) {
+		   if (renderThread != NULL) {
+			   SDL_WaitThread(renderThread, NULL);
+			   renderThread = NULL;
+		   }
+		   renderThread = SDL_CreateThread(renderField, "RenderThread", (void *)(&f));
+	   }
+	   f.increaseRuns();
 
 	}
+   if (renderThread != NULL) {
+	   SDL_WaitThread(renderThread, NULL);
+	   renderThread = NULL;
+   }
 
 	return 0;
 }
