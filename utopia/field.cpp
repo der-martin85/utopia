@@ -48,6 +48,7 @@ field::field(int x, int y):
 		runs(0)
 {
 	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&refresh, NULL);
 	map = new int*[x];
 	for (int i = 0; i < x; i++) {
 		map[i] = new int[y];
@@ -221,6 +222,14 @@ void field::lock() {
 }
 void field::unlock() {
 	pthread_mutex_unlock(&mutex);
+}
+void field::waitForChange() {
+	lock();
+	pthread_cond_wait(&refresh, &mutex);
+	unlock();
+}
+void field::signalChange() {
+	pthread_cond_signal(&refresh);
 }
 
 void field::changeToFullScreen() {

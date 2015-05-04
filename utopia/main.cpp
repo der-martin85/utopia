@@ -116,7 +116,7 @@ bool quit = false;
 static int rendererThread(void* param) {
 	field* f = (field*)param;
 
-	std::cout << "start render" << std::endl;
+//	std::cout << "start render" << std::endl;
 
 	init();
 	f->loadMedia(renderer);
@@ -124,13 +124,14 @@ static int rendererThread(void* param) {
 	do {
 
 		SDL_RenderClear(renderer);
-		std::cout << "render" << std::endl;
+//		std::cout << "render" << std::endl;
 		f->render(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 		SDL_RenderPresent(renderer);
 
+		f->waitForChange();
 	} while(!quit); //while(f->testAndDecrease());
 
-	std::cout << "done render" << std::endl;
+//	std::cout << "done render" << std::endl;
 
 	close();
 
@@ -258,6 +259,8 @@ int main(int argc, char* argv[]) {
 			   break;
 		   }
 	   }
+	   f.increaseRuns();
+	   f.signalChange();
 
 //	   f.render();
 //	   if (!f.stillRunning()) {

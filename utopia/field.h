@@ -40,6 +40,9 @@ public:
 	void changeToFullScreen();
 	void changeToWindow();
 
+	void waitForChange();
+	void signalChange();
+
 	int** map;
 	int selected[4];
 	const int fx;
@@ -53,6 +56,7 @@ private:
 	int zoom;
 	unsigned int runs;
 	pthread_mutex_t mutex;
+	pthread_cond_t refresh;
 
 	SDL_Surface* groundIMG[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
