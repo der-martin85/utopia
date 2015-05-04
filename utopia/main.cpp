@@ -1,121 +1,10 @@
 #include "SDL2/SDL.h"
-#include "SDL2/SDL_image.h"
 
 #include <stdio.h>
 #include <time.h>
 #include <iostream>
-
-//Starts up SDL and creates window
-bool init();
-
-//Loads media
-bool loadMedia();
-
-//Frees media and shuts down SDL
-void close();
-
-//The window we'll be rendering to
-SDL_Window* gWindow = NULL;
-
-//The surface contained by the window
-SDL_Surface* gScreenSurface = NULL;
-
-SDL_Renderer * renderer = NULL;
-
-//The image we will load and show on the screen
-SDL_Surface* ground[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
-
-SDL_Surface* selected = NULL;
-
-SDL_Texture* groundTextures[6] = {NULL,NULL,NULL,NULL, NULL, NULL};
-
-SDL_Texture* selectedTexture = NULL;
-
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 800;
-
-bool init() {
-	//Initialization flag
-	bool success = true;
-	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
-		success = false;
-	} else {
-		//Create window
-		gWindow = SDL_CreateWindow( "Utopia 3",
-				SDL_WINDOWPOS_UNDEFINED,
-				SDL_WINDOWPOS_UNDEFINED,
-				SCREEN_WIDTH,
-				SCREEN_HEIGHT,
-				SDL_WINDOW_SHOWN );
-		if( gWindow == NULL ) {
-			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
-			success = false;
-		} else {
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface( gWindow );
-			renderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED);
-		}
-	}
-	return success;
-}
-
-bool loadMedia()
-{
-    //Loading success flag
-    bool success = true;
-
-    //Load splash image
-    //gHelloWorld = SDL_LoadBMP( "02_getting_an_image_on_the_screen/hello_world.bmp" );
-    ground[0] = IMG_Load("./images/sand.png");
-    ground[1] = IMG_Load("./images/gras.png");
-    ground[2] = IMG_Load("./images/trees.png");
-    ground[3] = IMG_Load("./images/forest.png");
-    ground[4] = IMG_Load("./images/water0.png");
-    ground[5] = IMG_Load("./images/water1.png");
-
-    selected = IMG_Load("./images/selected.png");
-    if(ground[0] == NULL )
-    {
-        printf( "Unable to load image");
-        success = false;
-    }
-
-    for (int i = 0; i < 6; i++) {
-    	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, ground[i]);
-    }
-
-    selectedTexture = SDL_CreateTextureFromSurface(renderer, selected);;
-
-    return success;
-}
-
-void close() {
-    for (int i = 0; i < 4; i++) {
-    	SDL_DestroyTexture(groundTextures[i]);
-    	//Deallocate surface
-    	SDL_FreeSurface(ground[i]);
-    }
-    SDL_DestroyRenderer(renderer);
-
-	//Destroy window
-	SDL_DestroyWindow( gWindow );
-	gWindow = NULL;
-	//Quit SDL subsystems
-	SDL_Quit();
-}
-
-int posX = 0;
-int posY = 0;
-int zoom = 16;
-
-SDL_Rect isoTo2D(int x, int y) {
-	SDL_Rect dstrect = {0, 0, zoom*4, zoom*4 };
-	dstrect.x = (y + x)*2*zoom - posX*zoom;
-	dstrect.y = (y - x)*zoom + posY*zoom;
-	return dstrect;
-}
+#include <pthread.h>
+#include "field.h"
 
 //int propabilities[17][6] = {
 //		{40, 65, 85, 97, 100, 0},	// ss
@@ -166,6 +55,21 @@ int getField(int a, int b, int c, int d) {
 	return 0;
 }
 
+void* renderField(void* param) {
+	field* f = (field*)param;
+
+	std::cout << "start render" << std::endl;
+
+	do {
+		std::cout << "render" << std::endl;
+		f->render();
+	} while(f->testAndDecrease());
+
+	std::cout << "done render" << std::endl;
+
+    pthread_exit(NULL);
+}
+
 int main(int argc, char* argv[]) {
 
     bool quit = false;
@@ -174,7 +78,7 @@ int main(int argc, char* argv[]) {
     const int fieldx = 100;
     const int fieldy = 100;
 
-    int field[fieldx][fieldy];
+	field f = field(fieldx, fieldy);
 
     time_t t;
     time(&t);
@@ -200,215 +104,101 @@ int main(int argc, char* argv[]) {
 //    				field[x][y] = getField(field[x][y-1], field[x][y-1], field[x][y-1], field[x][y-1]);
 //    			}
 //    		} else {
-        		field[x][y] = (rand() % 2) * 4;
+        		f.map[x][y] = (rand() % 2) * 4;
 //    		}
         }
     }
 
-	//Start up SDL and create window
-	if( !init() ) {
-		printf( "Failed to initialize!\n" );
-	} else {
-		//Load media
-		if( !loadMedia() ) {
-			printf( "Failed to load media!\n" );
-		} else {
-			//Apply the image
-			//SDL_BlitSurface( gHelloWorld, NULL, gScreenSurface, NULL );
-			 //Update the surface
-			//SDL_UpdateWindowSurface( gWindow );
-			//Wait two seconds
+	pthread_t renderThread = 0;
 
-		   int mX, mY;
+	f.render();
 
-			Sint32 mouseX;
-			Sint32 mouseY;
+	while (!quit)
+	{
+	   SDL_WaitEvent(&event);
 
-			posX = (fieldy + fieldx);
+	   f.setMouseState();
 
-			int selectedFields[4] = {-1, -1, -1, -1};
+	   switch(event.type)
+	   {
+	   case SDL_QUIT:
+		   quit = true;
+		   break;
+	   case SDL_MOUSEWHEEL:
+		   {
+			   const SDL_MouseWheelEvent* mwe = (SDL_MouseWheelEvent*)(&event);
 
-	        while (!quit)
-	        {
-	           SDL_WaitEvent(&event);
+			   f.changeZoom(mwe->y);
 
-			   SDL_GetMouseState(&mX, &mY);
-			   // Auf welchem Feld sind wir?
-			   int mrX = mX + (posX * zoom);
-			   int mrY = mY - (posY * zoom);
-			   int miX = (mrX - ((mrY - (zoom*3))*2) ) / (4 * zoom);
-			   int miY = ((mrX/2) + mrY - (zoom*3)) / (2 * zoom);
+			   break;
+		   }
+	   case SDL_MOUSEBUTTONDOWN:
+		   {
+			   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
+			   if (mbe->button == SDL_BUTTON_RIGHT) {
+				   f.startDragging();
+			   }
+			   if (mbe->button == SDL_BUTTON_LEFT) {
+				   // Feld markieren
+				   f.startSelecting();
+			   }
+			   break;
+		   }
+	   case SDL_MOUSEBUTTONUP:
+		   {
+			   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
+			   if (mbe->button == SDL_BUTTON_RIGHT) {
 
-			   selectedFields[0] = miX;
-			   selectedFields[1] = miY;
+				   f.doneDragging();
+			   }
+			   if (mbe->button == SDL_BUTTON_LEFT) {
+				   // Feld markieren
+				   f.doneSelecting();
+			   }
+			   break;
+		   }
+	   case SDL_KEYDOWN:
+		   {
+			   const Uint8 *state = SDL_GetKeyboardState(NULL);
+			   if (state[SDL_SCANCODE_RIGHT]) {
+				   f.changePosX(2);
+			   }
+			   if (state[SDL_SCANCODE_UP]) {
+				   f.changePosY(1);
+			   }
+			   if (state[SDL_SCANCODE_DOWN]) {
+				   f.changePosY(-1);
+			   }
+			   if (state[SDL_SCANCODE_LEFT]) {
+				   f.changePosX(-2);
+			   }
+			   if (state[SDL_SCANCODE_W]) {
+				   f.changeZoom(-1);
+			   }
+			   if (state[SDL_SCANCODE_N]) {
+				   f.changeZoom(+1);
+			   }
+			   if (state[SDL_SCANCODE_F]) {
+				   f.changeToFullScreen();
+			   }
+			   if (state[SDL_SCANCODE_X]) {
+				   f.changeToWindow();
+			   }
+			   if (state[SDL_SCANCODE_Q]) {
+				   quit = true;
+			   }
+			   break;
+		   }
+	   }
 
-	           switch(event.type)
-	           {
-	           case SDL_QUIT:
-	               quit = true;
-	               break;
-	           case SDL_MOUSEWHEEL:
-	           	   {
-					   const SDL_MouseWheelEvent* mwe = (SDL_MouseWheelEvent*)(&event);
-
-					   int zoomOld = zoom;
-
-					   zoom += mwe->y;
-					   if (zoom < 4) {
-						   zoom = 4;
-					   }
-					   if (zoom > 32) {
-						   zoom = 32;
-					   }
-
-					   if (zoomOld != zoom) {
-						   posX += (mX/zoomOld) - (mX/zoom);
-						   posY -= (mY/zoomOld) - (mY/zoom);
-
-						   if (posX < 0) {
-							   posX = 0;
-						   } else if (posX > (fieldy + fieldx)*2) {
-							   posX = (fieldy + fieldx)*2;
-						   }
-						   if (posY < -(fieldy + fieldx) / 2) {
-							   posY = -(fieldy + fieldx) / 2;
-						   } else if (posY > (fieldy + fieldx) / 2) {
-							   posY = (fieldy + fieldx) / 2;
-						   }
-					   }
-					   break;
-	           	   }
-	           case SDL_MOUSEBUTTONDOWN:
-	           	   {
-	           		   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
-	           		   if (mbe->button == SDL_BUTTON_RIGHT) {
-	           			   mouseX = mbe->x;
-	           			   mouseY = mbe->y;
-	           		   }
-	           		   if (mbe->button == SDL_BUTTON_LEFT) {
-	           			   // Feld markieren
-	           			   if (selectedFields[0] >= 0 &&
-	           					   selectedFields[1] >= 0 &&
-								   selectedFields[0] < fieldx &&
-								   selectedFields[1] < fieldy) {
-		    	        	   selectedFields[2] = selectedFields[0];
-		    	        	   selectedFields[3] = selectedFields[1];
-	           			   }
-	           		   }
-	           		   break;
-	           	   }
-	           case SDL_MOUSEBUTTONUP:
-	           	   {
-	           		   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
-	           		   if (mbe->button == SDL_BUTTON_RIGHT) {
-	           			   Sint32 changeX = (mouseX - mbe->x) / zoom;
-	           			   Sint32 changeY = (mbe->y - mouseY) / zoom;
-	           			   posX += changeX;
-	           			   posY += changeY;
-	           			   if (posX < 0) {
-	           				   posX = 0;
-	           			   } else if (posX > (fieldy + fieldx)*2) {
-	           				   posX = (fieldy + fieldx)*2;
-	           			   }
-	           			   if (posY < -(fieldy + fieldx) / 2) {
-	           				   posY = -(fieldy + fieldx) / 2;
-	           			   } else if (posY > (fieldy + fieldx) / 2) {
-	           				   posY = (fieldy + fieldx) / 2;
-	           			   }
-	           		   }
-	           		   if (mbe->button == SDL_BUTTON_LEFT) {
-	           			   // Feld markieren
-	           			   if (selectedFields[2] > -1) {
-							   const int minX = selectedFields[0] > selectedFields[2] ? selectedFields[2] : selectedFields[0];
-							   const int minY = selectedFields[1] > selectedFields[3] ? selectedFields[3] : selectedFields[1];
-							   const int maxX = selectedFields[0] > selectedFields[2] ? selectedFields[0] : selectedFields[2];
-							   const int maxY = selectedFields[1] > selectedFields[3] ? selectedFields[1] : selectedFields[3];
-
-							   for (int iX = minX; iX <= maxX; iX++) {
-								   for (int iY = minY; iY <= maxY; iY++) {
-									   field[iX][iY] = 0;
-								   }
-							   }
-
-							   selectedFields[2] = -1;
-							   selectedFields[3] = -1;
-	           			   }
-	           		   }
-	           		   break;
-	           	   }
-	           case SDL_KEYDOWN:
-	           	   {
-					   const Uint8 *state = SDL_GetKeyboardState(NULL);
-					   if (state[SDL_SCANCODE_RIGHT]) {
-						   if (posX < (fieldy + fieldx)*2) {
-							   posX += 2;
-						   }
-					   }
-					   if (state[SDL_SCANCODE_UP]) {
-						   if (posY < (fieldy + fieldx) / 2) {
-							   posY += 1;
-						   }
-					   }
-					   if (state[SDL_SCANCODE_DOWN]) {
-						   if (posY > -(fieldy + fieldx) / 2) {
-							   posY -= 1;
-						   }
-					   }
-					   if (state[SDL_SCANCODE_LEFT]) {
-						   if (posX > 0) {
-							   posX -= 2;
-						   }
-					   }
-					   if (state[SDL_SCANCODE_W]) {
-						   if (zoom > 4) {
-							   zoom--;
-						   }
-					   }
-					   if (state[SDL_SCANCODE_N]) {
-						   if (zoom < 32) {
-							   zoom++;
-						   }
-					   }
-					   if (state[SDL_SCANCODE_F]) {
-						   SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN);
-					   }
-					   if (state[SDL_SCANCODE_X]) {
-						   SDL_SetWindowFullscreen(gWindow, 0);
-					   }
-					   if (state[SDL_SCANCODE_Q]) {
-						   quit = true;
-					   }
-					   break;
-	           	   }
+//	   f.render();
+	           if (!f.stillRunning()) {
+	        	   pthread_join(renderThread, NULL);
+		           pthread_create(&renderThread, NULL, renderField, (void *)(&f));
 	           }
+	           f.increaseRuns();
 
-	           SDL_RenderClear(renderer);
-
-        	   for (int y = 0; y < fieldy; y++) {
-        		   for (int x = fieldx-1; x >= 0 ; x--) {
-        	           SDL_Rect dstrect = isoTo2D(x, y);
-        	           if (dstrect.x + dstrect.w > 0 && dstrect.y + dstrect.h > 0 &&
-        	        		   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT) {
-        	        	   SDL_RenderCopy(renderer, groundTextures[field[x][y]], NULL, &dstrect);
-        	        	   if (((selectedFields[2] > -1) &&
-        	        			   ((x >= selectedFields[0] && x <= selectedFields[2]) ||
-        	        					   (x <= selectedFields[0] && x >= selectedFields[2])) &&
-								   ((y >= selectedFields[1] && y <= selectedFields[3]) ||
-           	        					   (y <= selectedFields[1] && y >= selectedFields[3]))) ||
-        	        			   (x == selectedFields[0] && y == selectedFields[1])) {
-        	    			   SDL_Rect sdstrect = {dstrect.x, dstrect.y+(dstrect.h/2), zoom*4, zoom*2 };
-        	    			   SDL_RenderCopy(renderer, selectedTexture, NULL, &sdstrect);
-        	        	   }
-        	           }
-        		   }
-        	   }
-
-	           SDL_RenderPresent(renderer);
-	        }
-
-		}
 	}
-	//Free resources and close SDL
-	close();
+
 	return 0;
 }
