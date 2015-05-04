@@ -72,27 +72,56 @@ void Map::generateMap() {
     time(&t);
     srand((unsigned int)t);              /* Zufallsgenerator initialisieren */
 
+    const int probabilities[17] = {
+    		90,
+			99,
+			70,
+			100,
+			60,
+			80,
+			40,
+			30,
+			60,
+			50,
+			20,
+			1,
+			1,
+			50,
+			1,
+			90,
+			50
+    };
+
 	for (int x = 0; x < fx; x++) {
         for (int y = 0; y < fy; y++) {
-//        	if (x > 0) {
-//        		if (y > 0) {
-//        			if (x < (fieldx-1)) {
-//        				field[x][y] = getField(field[x-1][y], field[x][y-1], field[x+1][y-1], field[x-1][y-1]);
-//        			} else {
-//        				field[x][y] = getField(field[x-1][y], field[x][y-1], field[x][y-1], field[x-1][y-1]);
-//        			}
-//        		} else {
-//       				field[x][y] = getField(field[x-1][y], field[x-1][y], field[x-1][y], field[x-1][y]);
-//        		}
-//        	} else if (y > 0) {
-//    			if (x < (fieldx-1)) {
-//    				field[x][y] = getField(field[x][y-1], field[x][y-1], field[x+1][y-1], field[x][y-1]);
-//    			} else {
-//    				field[x][y] = getField(field[x][y-1], field[x][y-1], field[x][y-1], field[x][y-1]);
-//    			}
-//    		} else {
-        		map[x][y].setType((bool)(rand() % 2));
-//    		}
+        	int r = rand() % 100;
+			int p = 0;
+        	if (x > 0) {
+        		if (y > 0) {
+        			if (x < (fx-1)) {
+        				if (map[x-1][y].getType()) p += 1;
+        				if (map[x][y-1].getType()) p += 2;
+        				if (map[x+1][y-1].getType()) p += 4;
+        				if (map[x-1][y-1].getType()) p += 8;
+        			} else {
+        				if (map[x-1][y].getType()) p += 1;
+        				if (map[x][y-1].getType()) p += 6;
+        				if (map[x-1][y-1].getType()) p += 8;
+        			}
+        		} else {
+        			if (map[x-1][y].getType()) p += 15;
+        		}
+        	} else if (y > 0) {
+    			if (x < (fx-1)) {
+    				if (map[x][y-1].getType()) p += 2;
+    				if (map[x+1][y-1].getType()) p += 4;
+    			} else {
+    				if (map[x][y-1].getType()) p += 15;
+    			}
+    		} else {
+    			p = 16;
+    		}
+    		map[x][y].setType(r < probabilities[p]);
         }
     }
 }
@@ -105,6 +134,10 @@ void Map::setMouseState() {
 	   int miX = (mrX - ((mrY - (zoom*3))*2) ) / (4 * zoom);
 	   int miY = ((mrX/2) + mrY - (zoom*3)) / (2 * zoom);
 
+	   if (miX >= fx) miX = fx-1;
+	   if (miY >= fy) miY = fy-1;
+	   if (miX < 0) miX = 0;
+	   if (miY < 0) miY = 0;
 	   selected[0] = miX;
 	   selected[1] = miY;
 }
