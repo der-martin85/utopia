@@ -4,56 +4,8 @@
 #include <time.h>
 #include <iostream>
 #include <pthread.h>
-#include "field.h"
 
-//int propabilities[17][6] = {
-//		{40, 65, 85, 97, 100, 0},	// ss
-//		{20, 60, 80, 97, 100, 0},	// gg
-//		{10, 20, 60, 97, 100, 0},	// tt
-//		{10, 30, 55, 97, 100, 0},	// ff
-//		{4, 8, 12, 16, 65, 100},	// ww
-//		{0, 0, 0, 0, 30, 100},	// dd
-//		{30, 60, 85, 97, 100, 0},	// sg
-//		{30, 50, 80, 97, 100, 0},	// st
-//		{30, 50, 70, 97, 100, 0},	// sf
-//		{30, 50, 60, 67, 100, 0},	// sw
-//		{10, 40, 70, 97, 100, 0},	// gt
-//		{10, 40, 60, 97, 100, 0},	// gf
-//		{10, 40, 60, 67, 100, 0},	// gw
-//		{10, 20, 50, 97, 100, 0},	// tf
-//		{10, 20, 40, 65, 100, 0},	// tw
-//		{10, 20, 40, 65, 100, 0},	// fw
-//		{0, 0, 0, 0, 40, 100}		// wd
-//};
-
-int propabilities[16] = {
-		90,
-		99,
-		70,
-		100,
-		60,
-		80,
-		40,
-		30,
-		60,
-		50,
-		20,
-		1,
-		1,
-		50,
-		1,
-		90
-};
-
-
-int getField(int a, int b, int c, int d) {
-	int state = (a/4)*8 + (b/4)*4 + (c/4)*2 + (d/4);
-	int r = rand() % 100;
-	if (r >= propabilities[state]) {
-		return 4;
-	}
-	return 0;
-}
+#include "Map.h"
 
 //Starts up SDL and creates window
 bool init();
@@ -114,7 +66,7 @@ void close() {
 bool quit = false;
 
 static int rendererThread(void* param) {
-	field* f = (field*)param;
+	Map* f = (Map*)param;
 
 //	std::cout << "start render" << std::endl;
 
@@ -145,40 +97,10 @@ int main(int argc, char* argv[]) {
     const int fieldx = 100;
     const int fieldy = 100;
 
-	field f = field(fieldx, fieldy);
-
-    time_t t;
-    time(&t);
-    srand((unsigned int)t);              /* Zufallsgenerator initialisieren */
-
-
-    for (int x = 0; x < fieldx; x++) {
-        for (int y = 0; y < fieldy; y++) {
-//        	if (x > 0) {
-//        		if (y > 0) {
-//        			if (x < (fieldx-1)) {
-//        				field[x][y] = getField(field[x-1][y], field[x][y-1], field[x+1][y-1], field[x-1][y-1]);
-//        			} else {
-//        				field[x][y] = getField(field[x-1][y], field[x][y-1], field[x][y-1], field[x-1][y-1]);
-//        			}
-//        		} else {
-//       				field[x][y] = getField(field[x-1][y], field[x-1][y], field[x-1][y], field[x-1][y]);
-//        		}
-//        	} else if (y > 0) {
-//    			if (x < (fieldx-1)) {
-//    				field[x][y] = getField(field[x][y-1], field[x][y-1], field[x+1][y-1], field[x][y-1]);
-//    			} else {
-//    				field[x][y] = getField(field[x][y-1], field[x][y-1], field[x][y-1], field[x][y-1]);
-//    			}
-//    		} else {
-        		f.map[x][y] = (rand() % 2) * 4;
-//    		}
-        }
-    }
+	Map f = Map(fieldx, fieldy);
+	f.generateMap();
 
     SDL_Thread *renderThread = NULL;
-
-	//f.render();
 
     renderThread = SDL_CreateThread(rendererThread, "RenderThread", (void *)(&f));
 
@@ -259,19 +181,7 @@ int main(int argc, char* argv[]) {
 			   break;
 		   }
 	   }
-	   f.increaseRuns();
 	   f.signalChange();
-
-//	   f.render();
-//	   if (!f.stillRunning()) {
-//		   if (renderThread != NULL) {
-//			   SDL_WaitThread(renderThread, NULL);
-//			   renderThread = NULL;
-//		   }
-//		   renderThread = SDL_CreateThread(rendererThread, "RenderThread", (void *)(&f));
-//	   }
-//	   f.increaseRuns();
-
 	}
    if (renderThread != NULL) {
 	   SDL_WaitThread(renderThread, NULL);

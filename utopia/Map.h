@@ -5,20 +5,20 @@
  *      Author: jentin
  */
 
-#ifndef FIELD_H_
-#define FIELD_H_
+#ifndef MAP_H_
+#define MAP_H_
 
 #include <pthread.h>
 #include "SDL2/SDL.h"
+#include "Field.h"
 
-class field {
+class Map {
 public:
-	field(int x, int y);
-	~field();
+	Map(int x, int y);
+	~Map();
+	void generateMap();
+
 	bool loadMedia(SDL_Renderer * renderer);
-	bool stillRunning();
-	void increaseRuns();
-	bool testAndDecrease();
 
 	void setMouseState();
 
@@ -43,18 +43,18 @@ public:
 	void waitForChange();
 	void signalChange();
 
-	int** map;
-	int selected[4];
 	const int fx;
 	const int fy;
+
 private:
 	SDL_Rect isoTo2D(int x, int y);
 
+	Field** map;
+	int selected[4];
 	Sint32 mX, mY, oldMX, oldMY;
 	int posX;
 	int posY;
 	int zoom;
-	unsigned int runs;
 	pthread_mutex_t mutex;
 	pthread_cond_t refresh;
 
@@ -68,4 +68,4 @@ private:
 
 };
 
-#endif /* FIELD_H_ */
+#endif /* MAP_H_ */

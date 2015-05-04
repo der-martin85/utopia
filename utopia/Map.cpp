@@ -5,10 +5,11 @@
  *      Author: jentin
  */
 
-#include "field.h"
+#include "Map.h"
+
 #include "SDL2/SDL_image.h"
 
-bool field::loadMedia(SDL_Renderer * renderer)
+bool Map::loadMedia(SDL_Renderer * renderer)
 {
     //Loading success flag
     bool success = true;
@@ -39,22 +40,21 @@ bool field::loadMedia(SDL_Renderer * renderer)
 }
 
 
-field::field(int x, int y):
-		selected{-1, -1, -1, -1},
+Map::Map(int x, int y):
 		fx(x), fy(y),
+		selected{-1, -1, -1, -1},
 		mX(0), mY(0), oldMX(0), oldMY(0),
 		posX((y + x)), posY(0),
-		zoom(16),
-		runs(0)
+		zoom(16)
 {
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&refresh, NULL);
-	map = new int*[x];
+	map = new Field*[x];
 	for (int i = 0; i < x; i++) {
-		map[i] = new int[y];
+		map[i] = new Field[y];
 	}
 }
-field::~field() {
+Map::~Map() {
     for (int i = 0; i < 4; i++) {
     	SDL_DestroyTexture(groundTextures[i]);
     	//Deallocate surface
@@ -66,35 +66,38 @@ field::~field() {
 	}
 	delete[] map;
 }
-bool field::stillRunning() {
-	bool ret = false;
-	lock();
-	if (runs > 0) {
-		ret = true;
-	}
-	unlock();
-	return ret;
+
+void Map::generateMap() {
+    time_t t;
+    time(&t);
+    srand((unsigned int)t);              /* Zufallsgenerator initialisieren */
+
+	for (int x = 0; x < fx; x++) {
+        for (int y = 0; y < fy; y++) {
+//        	if (x > 0) {
+//        		if (y > 0) {
+//        			if (x < (fieldx-1)) {
+//        				field[x][y] = getField(field[x-1][y], field[x][y-1], field[x+1][y-1], field[x-1][y-1]);
+//        			} else {
+//        				field[x][y] = getField(field[x-1][y], field[x][y-1], field[x][y-1], field[x-1][y-1]);
+//        			}
+//        		} else {
+//       				field[x][y] = getField(field[x-1][y], field[x-1][y], field[x-1][y], field[x-1][y]);
+//        		}
+//        	} else if (y > 0) {
+//    			if (x < (fieldx-1)) {
+//    				field[x][y] = getField(field[x][y-1], field[x][y-1], field[x+1][y-1], field[x][y-1]);
+//    			} else {
+//    				field[x][y] = getField(field[x][y-1], field[x][y-1], field[x][y-1], field[x][y-1]);
+//    			}
+//    		} else {
+        		map[x][y].setType((bool)(rand() % 2));
+//    		}
+        }
+    }
 }
-void field::increaseRuns() {
-	lock();
-	if (runs < 2) {
-		runs++;
-	}
-	unlock();
-}
-bool field::testAndDecrease() {
-	bool ret = false;
-	lock();
-	if (runs > 0) {
-		runs--;
-	}
-	if (runs > 0) {
-		ret = true;
-	}
-	unlock();
-	return ret;
-}
-void field::setMouseState() {
+
+void Map::setMouseState() {
 	   SDL_GetMouseState(&mX, &mY);
 	   // Auf welchem Feld sind wir?
 	   int mrX = mX + (posX * zoom);
@@ -105,14 +108,14 @@ void field::setMouseState() {
 	   selected[0] = miX;
 	   selected[1] = miY;
 }
-void field::render(SDL_Renderer * renderer, int screenWidth, int screenHeight) {
+void Map::render(SDL_Renderer * renderer, int screenWidth, int screenHeight) {
 	for (int y = 0; y < fy; y++) {
 		for (int x = fx-1; x >= 0 ; x--) {
 			SDL_Rect dstrect = isoTo2D(x, y);
 			if (dstrect.x + dstrect.w > 0 && dstrect.y + dstrect.h > 0 &&
 				   dstrect.x < screenWidth && dstrect.y < screenHeight) {
 				lock();
-			   SDL_RenderCopy(renderer, groundTextures[map[x][y]], NULL, &dstrect);
+			   SDL_RenderCopy(renderer, groundTextures[map[x][y].getTextureNumber()], NULL, &dstrect);
 			   if (((selected[2] > -1) &&
 					   ((x >= selected[0] && x <= selected[2]) ||
 							   (x <= selected[0] && x >= selected[2])) &&
@@ -129,7 +132,7 @@ void field::render(SDL_Renderer * renderer, int screenWidth, int screenHeight) {
 
 }
 
-void field::changeZoom(int change) {
+void Map::changeZoom(int change) {
    int zoomOld = zoom;
 
    zoom += change;
@@ -157,7 +160,7 @@ void field::changeZoom(int change) {
    }
 }
 
-void field::changePosX(int change) {
+void Map::changePosX(int change) {
 	   posX += change;
 	   if (posX < 0) {
 		   posX = 0;
@@ -166,7 +169,7 @@ void field::changePosX(int change) {
 	   }
 }
 
-void field::changePosY(int change) {
+void Map::changePosY(int change) {
 	   posY += change;
 	   if (posY < -(fy + fx) / 2) {
 		   posY = -(fy + fx) / 2;
@@ -175,7 +178,7 @@ void field::changePosY(int change) {
 	   }
 }
 
-void field::startSelecting() {
+void Map::startSelecting() {
    lock();
    if (selected[0] >= 0 &&
 		   selected[1] >= 0 &&
@@ -187,7 +190,7 @@ void field::startSelecting() {
    unlock();
 }
 
-void field::doneSelecting() {
+void Map::doneSelecting() {
    lock();
    if (selected[2] > -1) {
 	   const int minX = selected[0] > selected[2] ? selected[2] : selected[0];
@@ -197,7 +200,7 @@ void field::doneSelecting() {
 
 	   for (int iX = minX; iX <= maxX; iX++) {
 		   for (int iY = minY; iY <= maxY; iY++) {
-			   map[iX][iY] = 0;
+			   map[iX][iY].setType(true);
 		   }
 	   }
 
@@ -207,40 +210,40 @@ void field::doneSelecting() {
    unlock();
 }
 
-void field::startDragging() {
+void Map::startDragging() {
    oldMX = mX;
    oldMY = mY;
 }
 
-void field::doneDragging() {
+void Map::doneDragging() {
    changePosX((oldMX - mX) / zoom);
    changePosY((mY - oldMY) / zoom);
 }
 
-void field::lock() {
+void Map::lock() {
 	pthread_mutex_lock(&mutex);
 }
-void field::unlock() {
+void Map::unlock() {
 	pthread_mutex_unlock(&mutex);
 }
-void field::waitForChange() {
+void Map::waitForChange() {
 	lock();
 	pthread_cond_wait(&refresh, &mutex);
 	unlock();
 }
-void field::signalChange() {
+void Map::signalChange() {
 	pthread_cond_signal(&refresh);
 }
 
-void field::changeToFullScreen() {
+void Map::changeToFullScreen() {
 //	SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN);
 }
 
-void field::changeToWindow() {
+void Map::changeToWindow() {
 //	SDL_SetWindowFullscreen(gWindow, 0);
 }
 
-SDL_Rect field::isoTo2D(int x, int y) {
+SDL_Rect Map::isoTo2D(int x, int y) {
 	SDL_Rect dstrect = {0, 0, zoom*4, zoom*4 };
 	dstrect.x = (y + x)*2*zoom - posX*zoom;
 	dstrect.y = (y - x)*zoom + posY*zoom;
