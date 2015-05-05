@@ -15,11 +15,24 @@ class RenderThread {
 public:
 	~RenderThread();
 	static RenderThread* startThread(int screenWidth, int screenHeight, Map* map);
-	bool quit = false;
+	void changeToFullScreen() {
+		pthread_mutex_lock(&mutex);
+		changeFullscreen = true;
+		pthread_mutex_unlock(&mutex);
+	}
+
+	void changeToWindow() {
+		pthread_mutex_lock(&mutex);
+		changeWindow = true;
+		pthread_mutex_unlock(&mutex);
+	}
+	bool quit;
 private:
 	bool init();
 	void close();
 
+	bool changeFullscreen;
+	bool changeWindow;
 	SDL_Window* window;
 	SDL_Surface* screenSurface;
 	SDL_Renderer* renderer;
@@ -27,6 +40,7 @@ private:
 	const int SCREEN_HEIGHT;
 	Map* map;
 	SDL_Thread* thread;
+	pthread_mutex_t mutex;
 
 	static int threadMethod(void* param);
 	RenderThread(int screenWidth, int screenHeight, Map* map);

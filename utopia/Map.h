@@ -25,6 +25,7 @@ public:
 	void render(SDL_Renderer * renderer, int screenWidth, int screenHeight);
 
 	void changeZoom(int change);
+	void changeAngle(bool left);
 	void changePosX(int change);
 	void changePosY(int change);
 
@@ -37,9 +38,6 @@ public:
 	void lock();
 	void unlock();
 
-	void changeToFullScreen();
-	void changeToWindow();
-
 	void waitForChange();
 	void signalChange();
 
@@ -48,6 +46,20 @@ public:
 
 private:
 	SDL_Rect isoTo2D(int x, int y);
+	void correctPosY() {
+		   if (posY < -(fy + fx) / 2) {
+			   posY = -(fy + fx) / 2;
+		   } else if (posY > (fy + fx) / 2) {
+			   posY = (fy + fx) / 2;
+		   }
+	}
+	void correctPosX() {
+		   if (posX < 0) {
+			   posX = 0;
+		   } else if (posX > (fy + fx)*2) {
+			   posX = (fy + fx)*2;
+		   }
+	}
 
 	Field** map;
 	int selected[4];
@@ -55,6 +67,7 @@ private:
 	int posX;
 	int posY;
 	int zoom;
+	int angle;
 	pthread_mutex_t mutex;
 	pthread_cond_t refresh;
 

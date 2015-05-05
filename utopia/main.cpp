@@ -92,13 +92,19 @@ int main(int argc, char* argv[]) {
 				   f.changeZoom(+1);
 			   }
 			   if (state[SDL_SCANCODE_F]) {
-				   f.changeToFullScreen();
+				   renderThread->changeToFullScreen();
 			   }
 			   if (state[SDL_SCANCODE_X]) {
-				   f.changeToWindow();
+				   renderThread->changeToWindow();
 			   }
-			   if (state[SDL_SCANCODE_Q]) {
+			   if (state[SDL_SCANCODE_ESCAPE]) {
 				   renderThread->quit = true;
+			   }
+			   if (state[SDL_SCANCODE_L]) {
+				   f.changeAngle(true);
+			   }
+			   if (state[SDL_SCANCODE_R]) {
+				   f.changeAngle(false);
 			   }
 			   break;
 		   }

@@ -66,6 +66,16 @@ int RenderThread::threadMethod(void* param) {
 
 	do {
 
+		pthread_mutex_lock(&(t->mutex));
+		if (t->changeFullscreen) {
+			SDL_SetWindowFullscreen(t->window, SDL_WINDOW_FULLSCREEN);
+			t->changeFullscreen = false;
+		} else if (t->changeWindow) {
+			SDL_SetWindowFullscreen(t->window, 0);
+			t->changeWindow = false;
+		}
+		pthread_mutex_unlock(&(t->mutex));
+
 		SDL_RenderClear(t->renderer);
 //		std::cout << "render" << std::endl;
 		t->map->render(t->renderer, t->SCREEN_WIDTH, t->SCREEN_HEIGHT);
@@ -82,12 +92,16 @@ int RenderThread::threadMethod(void* param) {
 }
 
 RenderThread::RenderThread(int screenWidth, int screenHeight, Map* map):
+		quit(false),
+		changeFullscreen(false),
+		changeWindow(false),
 		window(NULL), screenSurface(NULL), renderer(NULL),
 		SCREEN_WIDTH(screenWidth),
 		SCREEN_HEIGHT(screenHeight),
 		map(map),
 		thread(NULL)
 {
+	pthread_mutex_init(&mutex, NULL);
 }
 
 RenderThread::~RenderThread() {

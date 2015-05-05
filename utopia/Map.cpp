@@ -134,6 +134,34 @@ void Map::setMouseState() {
 	   int miX = (mrX - ((mrY - (zoom*3))*2) ) / (4 * zoom);
 	   int miY = ((mrX/2) + mrY - (zoom*3)) / (2 * zoom);
 
+	   switch (angle) {
+		case 1: {
+			if (miX >= fy) miX = fy-1;
+			if (miX < 0) miX = 0;
+			if (miY >= fx) miY = fx-1;
+			if (miY < 0) miY = 0;
+			int tmp = miY;
+			miY = fy - miX;
+			miX = tmp;
+			break; }
+		case 2: {
+			miX = fx - miX;
+			miY = fy - miY;
+			break; }
+		case 3: {
+			if (miX >= fy) miX = fy-1;
+			if (miX < 0) miX = 0;
+			if (miY >= fx) miY = fx-1;
+			if (miY < 0) miY = 0;
+			int tmp = miX;
+			miX = fx - miY;
+			miY = tmp;
+			break; }
+		case 0:
+		default: {
+			break; }
+	   }
+
 	   if (miX >= fx) miX = fx-1;
 	   if (miY >= fy) miY = fy-1;
 	   if (miX < 0) miX = 0;
@@ -142,6 +170,7 @@ void Map::setMouseState() {
 	   selected[1] = miY;
 }
 void Map::render(SDL_Renderer * renderer, int screenWidth, int screenHeight) {
+
 	for (int y = 0; y < fy; y++) {
 		for (int x = fx-1; x >= 0 ; x--) {
 			SDL_Rect dstrect = isoTo2D(x, y);
@@ -180,35 +209,19 @@ void Map::changeZoom(int change) {
 	   posX += (mX/zoomOld) - (mX/zoom);
 	   posY -= (mY/zoomOld) - (mY/zoom);
 
-	   if (posX < 0) {
-		   posX = 0;
-	   } else if (posX > (fy + fx)*2) {
-		   posX = (fy + fx)*2;
-	   }
-	   if (posY < -(fy + fx) / 2) {
-		   posY = -(fy + fx) / 2;
-	   } else if (posY > (fy + fx) / 2) {
-		   posY = (fy + fx) / 2;
-	   }
+	   correctPosX();
+	   correctPosY();
    }
 }
 
 void Map::changePosX(int change) {
 	   posX += change;
-	   if (posX < 0) {
-		   posX = 0;
-	   } else if (posX > (fy + fx)*2) {
-		   posX = (fy + fx)*2;
-	   }
+	   correctPosX();
 }
 
 void Map::changePosY(int change) {
 	   posY += change;
-	   if (posY < -(fy + fx) / 2) {
-		   posY = -(fy + fx) / 2;
-	   } else if (posY > (fy + fx) / 2) {
-		   posY = (fy + fx) / 2;
-	   }
+	   correctPosY();
 }
 
 void Map::startSelecting() {
@@ -268,15 +281,50 @@ void Map::signalChange() {
 	pthread_cond_signal(&refresh);
 }
 
-void Map::changeToFullScreen() {
-//	SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN);
-}
-
-void Map::changeToWindow() {
-//	SDL_SetWindowFullscreen(gWindow, 0);
+void Map::changeAngle(bool left) {
+	if (left) {
+		angle++;
+		int tmp = posX;
+		posX = (posY*2 + (fy + fx));
+		posY = -((tmp/2) - (fy + fx));
+		correctPosX();
+		correctPosY();
+		if (angle > 3) {
+			angle = 0;
+		}
+	} else {
+		angle--;
+		int tmp = posX;
+		posX = (2*(fy + fx))-(posY*2 + (fy + fx));
+		posY = ((tmp/2) - (fy + fx));
+		if (angle < 0) {
+			angle = 3;
+		}
+	}
 }
 
 SDL_Rect Map::isoTo2D(int x, int y) {
+
+	switch (angle) {
+	case 1: {
+		int tmp = x;
+		x = fy - y;
+		y = tmp;
+		break; }
+	case 2: {
+		x = fx - x;
+		y = fy - y;
+		break; }
+	case 3: {
+		int tmp = y;
+		y = fx - x;
+		x = tmp;
+		break; }
+	case 0:
+	default: {
+		break; }
+	}
+
 	SDL_Rect dstrect = {0, 0, zoom*4, zoom*4 };
 	dstrect.x = (y + x)*2*zoom - posX*zoom;
 	dstrect.y = (y - x)*zoom + posY*zoom;
