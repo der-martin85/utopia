@@ -13,9 +13,9 @@ public:
 	Field();
 
 	void setType(bool land);
-	bool getType();
+	bool getType() const;
 
-	int getTextureNumber();
+	int getTextureNumber() const;
 
 	virtual ~Field();
 private:

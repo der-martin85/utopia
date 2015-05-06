@@ -5,17 +5,17 @@
  *      Author: jentin
  */
 
-#ifndef DATE_H_
-#define DATE_H_
+#ifndef GAMEDATE_H_
+#define GAMEDATE_H_
 
-class date {
+class GameDate {
 public:
-	date();
-	virtual ~date();
+	GameDate();
+	virtual ~GameDate();
 protected:
 	int year;
 	int month;
 	int day;
 };
 
-#endif /* DATE_H_ */
+#endif /* GAMEDATE_H_ */

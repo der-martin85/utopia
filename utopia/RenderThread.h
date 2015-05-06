@@ -8,13 +8,13 @@
 #ifndef RENDERTHREAD_H_
 #define RENDERTHREAD_H_
 
-#include "Map.h"
+#include "Game.h"
 #include "SDL2/SDL.h"
 
 class RenderThread {
 public:
 	~RenderThread();
-	static RenderThread* startThread(int screenWidth, int screenHeight, Map* map);
+	static RenderThread* startThread(int screenWidth, int screenHeight, Game* game);
 	void changeToFullScreen() {
 		pthread_mutex_lock(&mutex);
 		changeFullscreen = true;
@@ -29,7 +29,10 @@ public:
 	bool quit;
 private:
 	bool init();
+	bool loadMedia();
 	void close();
+	void render();
+	SDL_Rect isoTo2D(int x, int y);
 
 	bool changeFullscreen;
 	bool changeWindow;
@@ -38,12 +41,20 @@ private:
 	SDL_Renderer* renderer;
 	const int SCREEN_WIDTH;
 	const int SCREEN_HEIGHT;
-	Map* map;
+	Game* game;
 	SDL_Thread* thread;
 	pthread_mutex_t mutex;
 
+	SDL_Surface* groundIMG[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
+
+	SDL_Surface* selectedIMG = NULL;
+
+	SDL_Texture* groundTextures[6] = {NULL,NULL,NULL,NULL, NULL, NULL};
+
+	SDL_Texture* selectedTexture = NULL;
+
 	static int threadMethod(void* param);
-	RenderThread(int screenWidth, int screenHeight, Map* map);
+	RenderThread(int screenWidth, int screenHeight, Game* game);
 };
 
 #endif /* RENDERTHREAD_H_ */

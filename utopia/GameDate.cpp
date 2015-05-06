@@ -1,17 +1,17 @@
 /*
- * game.cpp
+ * date.cpp
  *
- *  Created on: 20.07.2010
+ *  Created on: 27.08.2010
  *      Author: jentin
  */
 
-#include "game.h"
+#include "GameDate.h"
 
-game::game() {
+GameDate::GameDate() {
 	// TODO Auto-generated constructor stub
 
 }
 
-game::~game() {
+GameDate::~GameDate() {
 	// TODO Auto-generated destructor stub
 }

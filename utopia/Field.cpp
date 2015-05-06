@@ -17,11 +17,11 @@ Field::~Field() {
 void Field::setType(bool land) {
 	this->land = land;
 }
-bool Field::getType() {
+bool Field::getType() const {
 	return land;
 }
 
-int Field::getTextureNumber() {
+int Field::getTextureNumber() const {
 	if (land) {
 		return 0;
 	}

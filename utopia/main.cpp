@@ -1,7 +1,5 @@
 #include "SDL2/SDL.h"
 
-#include <stdio.h>
-#include <time.h>
 #include <iostream>
 #include <pthread.h>
 
@@ -18,10 +16,12 @@ int main(int argc, char* argv[]) {
     const int fieldx = 100;
     const int fieldy = 100;
 
-	Map f = Map(fieldx, fieldy);
-	f.generateMap();
+	//Map f = Map(fieldx, fieldy);
+	//f.generateMap();
+    Game game(fieldx, fieldy);
+    game.generateMap();
 
-	RenderThread* renderThread = RenderThread::startThread(SCREEN_WIDTH, SCREEN_HEIGHT, &f);
+	RenderThread* renderThread = RenderThread::startThread(SCREEN_WIDTH, SCREEN_HEIGHT, &game);
 	if (renderThread == NULL) {
 		return 0;
 	}
@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 	{
 	   SDL_WaitEvent(&event);
 
-	   f.setMouseState();
+	   game.setMouseState();
 
 	   switch(event.type)
 	   {
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 		   {
 			   const SDL_MouseWheelEvent* mwe = (SDL_MouseWheelEvent*)(&event);
 
-			   f.changeZoom(mwe->y);
+			   game.changeZoom(mwe->y);
 
 			   break;
 		   }
@@ -49,11 +49,11 @@ int main(int argc, char* argv[]) {
 		   {
 			   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
 			   if (mbe->button == SDL_BUTTON_RIGHT) {
-				   f.startDragging();
+				   game.startDragging();
 			   }
 			   if (mbe->button == SDL_BUTTON_LEFT) {
 				   // Feld markieren
-				   f.startSelecting();
+				   game.startSelecting();
 			   }
 			   break;
 		   }
@@ -62,11 +62,11 @@ int main(int argc, char* argv[]) {
 			   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
 			   if (mbe->button == SDL_BUTTON_RIGHT) {
 
-				   f.doneDragging();
+				   game.doneDragging();
 			   }
 			   if (mbe->button == SDL_BUTTON_LEFT) {
 				   // Feld markieren
-				   f.doneSelecting();
+				   game.doneSelecting();
 			   }
 			   break;
 		   }
@@ -74,22 +74,22 @@ int main(int argc, char* argv[]) {
 		   {
 			   const Uint8 *state = SDL_GetKeyboardState(NULL);
 			   if (state[SDL_SCANCODE_RIGHT]) {
-				   f.changePosX(2);
+				   game.changePosX(2);
 			   }
 			   if (state[SDL_SCANCODE_UP]) {
-				   f.changePosY(1);
+				   game.changePosY(1);
 			   }
 			   if (state[SDL_SCANCODE_DOWN]) {
-				   f.changePosY(-1);
+				   game.changePosY(-1);
 			   }
 			   if (state[SDL_SCANCODE_LEFT]) {
-				   f.changePosX(-2);
+				   game.changePosX(-2);
 			   }
 			   if (state[SDL_SCANCODE_W]) {
-				   f.changeZoom(-1);
+				   game.changeZoom(-1);
 			   }
 			   if (state[SDL_SCANCODE_N]) {
-				   f.changeZoom(+1);
+				   game.changeZoom(+1);
 			   }
 			   if (state[SDL_SCANCODE_F]) {
 				   renderThread->changeToFullScreen();
@@ -101,15 +101,15 @@ int main(int argc, char* argv[]) {
 				   renderThread->quit = true;
 			   }
 			   if (state[SDL_SCANCODE_L]) {
-				   f.changeAngle(true);
+				   game.changeAngle(true);
 			   }
 			   if (state[SDL_SCANCODE_R]) {
-				   f.changeAngle(false);
+				   game.changeAngle(false);
 			   }
 			   break;
 		   }
 	   }
-	   f.signalChange();
+	   game.signalChange();
 	}
    if (renderThread != NULL) {
 	   delete renderThread;
