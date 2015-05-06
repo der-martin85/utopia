@@ -47,18 +47,24 @@ public:
 private:
 	SDL_Rect isoTo2D(int x, int y);
 	void correctPosY() {
-		   if (posY < -(fy + fx) / 2) {
-			   posY = -(fy + fx) / 2;
-		   } else if (posY > (fy + fx) / 2) {
-			   posY = (fy + fx) / 2;
+		   if (posY < -getMaxY()) {
+			   posY = -getMaxY();
+		   } else if (posY > getMaxY()) {
+			   posY = getMaxY();
 		   }
 	}
 	void correctPosX() {
 		   if (posX < 0) {
 			   posX = 0;
-		   } else if (posX > (fy + fx)*2) {
-			   posX = (fy + fx)*2;
+		   } else if (posX > getMaxX()) {
+			   posX = getMaxX();
 		   }
+	}
+	int getMaxX() {
+		return (fy + fx)*2;
+	}
+	int getMaxY() {
+		return (fy + fx) / 2;
 	}
 
 	Field** map;

@@ -45,7 +45,8 @@ Map::Map(int x, int y):
 		selected{-1, -1, -1, -1},
 		mX(0), mY(0), oldMX(0), oldMY(0),
 		posX((y + x)), posY(0),
-		zoom(16)
+		zoom(16),
+		angle(0)
 {
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&refresh, NULL);
@@ -70,59 +71,83 @@ Map::~Map() {
 void Map::generateMap() {
     time_t t;
     time(&t);
-    srand((unsigned int)t);              /* Zufallsgenerator initialisieren */
+    srand((unsigned int)t);
 
-    const int probabilities[17] = {
-    		90,
-			99,
-			70,
-			100,
-			60,
-			80,
-			40,
-			30,
-			60,
-			50,
-			20,
-			1,
-			1,
-			50,
-			1,
-			90,
+    const int probabilities[9] = {
+    		3,
+    		65,
+    		30,
+    		85,
+    		30,
+    		40,
+    		30,
+    		99,
 			50
     };
 
-	for (int x = 0; x < fx; x++) {
-        for (int y = 0; y < fy; y++) {
-        	int r = rand() % 100;
-			int p = 0;
-        	if (x > 0) {
-        		if (y > 0) {
-        			if (x < (fx-1)) {
-        				if (map[x-1][y].getType()) p += 1;
-        				if (map[x][y-1].getType()) p += 2;
-        				if (map[x+1][y-1].getType()) p += 4;
-        				if (map[x-1][y-1].getType()) p += 8;
-        			} else {
-        				if (map[x-1][y].getType()) p += 1;
-        				if (map[x][y-1].getType()) p += 6;
-        				if (map[x-1][y-1].getType()) p += 8;
-        			}
-        		} else {
-        			if (map[x-1][y].getType()) p += 15;
-        		}
-        	} else if (y > 0) {
-    			if (x < (fx-1)) {
-    				if (map[x][y-1].getType()) p += 2;
-    				if (map[x+1][y-1].getType()) p += 4;
-    			} else {
-    				if (map[x][y-1].getType()) p += 15;
-    			}
-    		} else {
-    			p = 16;
+    for (int s = 0; s < fx && s < fy; s++) {
+    	if (s < fx) {
+    		int x = s;
+			for (int y = s; y < fy; y++) {
+				int r = rand() % 100;
+				int p = 0;
+				if (y > 0) {
+					if (x > 0) {
+						if (y < (fy-1)) {
+							if (map[x][y-1].getType()) p += 1;
+							if (map[x-1][y].getType()) p += 2;
+							if (map[x-1][y+1].getType()) p += 4;
+						} else {
+							if (map[x][y-1].getType()) p += 1;
+							if (map[x-1][y].getType()) p += 6;
+						}
+					} else {
+						if (map[x][y-1].getType()) p += 7;
+					}
+				} else if (x > 0) {
+					if (y < (fy-1)) {
+						if (map[x-1][y].getType()) p += 3;
+						if (map[x-1][y+1].getType()) p += 4;
+					} else {
+						if (map[x-1][y].getType()) p += 7;
+					}
+				} else {
+					p = 8;
+				}
+				map[x][y].setType(r < probabilities[p]);
+			}
+    	}
+    	if (s < fy) {
+    		int y = s;
+    		for (int x = s+1; x < fx; x++) {
+				int r = rand() % 100;
+				int p = 0;
+				if (x > 0) {
+					if (y > 0) {
+						if (x < (fx-1)) {
+							if (map[x-1][y].getType()) p += 1;
+							if (map[x][y-1].getType()) p += 2;
+							if (map[x+1][y-1].getType()) p += 4;
+						} else {
+							if (map[x-1][y].getType()) p += 1;
+							if (map[x][y-1].getType()) p += 6;
+						}
+					} else {
+						if (map[x-1][y].getType()) p += 7;
+					}
+				} else if (y > 0) {
+					if (x < (fx-1)) {
+						if (map[x][y-1].getType()) p += 3;
+						if (map[x+1][y-1].getType()) p += 4;
+					} else {
+						if (map[x][y-1].getType()) p += 7;
+					}
+				} else {
+					p = 8;
+				}
+				map[x][y].setType(r < probabilities[p]);
     		}
-    		map[x][y].setType(r < probabilities[p]);
-        }
+    	}
     }
 }
 
