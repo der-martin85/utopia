@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 		   {
 			   const Uint8 *state = SDL_GetKeyboardState(NULL);
 			   if (state[SDL_SCANCODE_RIGHT]) {
-				   game.changePosX(2);
+				   game.changePosX(1);
 			   }
 			   if (state[SDL_SCANCODE_UP]) {
 				   game.changePosY(1);
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 				   game.changePosY(-1);
 			   }
 			   if (state[SDL_SCANCODE_LEFT]) {
-				   game.changePosX(-2);
+				   game.changePosX(-1);
 			   }
 			   if (state[SDL_SCANCODE_W]) {
 				   game.changeZoom(-1);

@@ -193,7 +193,7 @@ SDL_Rect RenderThread::isoTo2D(int x, int y) {
 	}
 
 	SDL_Rect dstrect = {0, 0, (game->getZoom() * 4), (game->getZoom() * 4) };
-	dstrect.x = (y + x) * 2 * game->getZoom() - (game->getPosX() * game->getZoom());
-	dstrect.y = (y - x) * game->getZoom() + (game->getPosY() * game->getZoom());
+	dstrect.x = (y + x - (game->getPosX() + game->getMaxPosX())) * 2 * game->getZoom();
+	dstrect.y = (y - x + game->getPosY()) * game->getZoom();
 	return dstrect;
 }

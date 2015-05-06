@@ -13,7 +13,7 @@ Game::Game(int x, int y):
 		map(x, y),
 		selected{-1, -1, -1, -1},
 		mX(0), mY(0), oldMX(0), oldMY(0),
-		posX((y + x)), posY(0),
+		posX(-16), posY(16),
 		zoom(16),
 		angle(0)
 {
@@ -28,7 +28,7 @@ Game::~Game() {
 void Game::setMouseState() {
 	   SDL_GetMouseState(&mX, &mY);
 	   // Auf welchem Feld sind wir?
-	   int mrX = mX + (posX * zoom);
+	   int mrX = mX + ((posX + getMaxPosX()) * zoom * 2);
 	   int mrY = mY - (posY * zoom);
 	   int miX = (mrX - ((mrY - (zoom*3))*2) ) / (4 * zoom);
 	   int miY = ((mrX/2) + mrY - (zoom*3)) / (2 * zoom);
@@ -81,7 +81,7 @@ void Game::changeZoom(int change) {
    }
 
    if (zoomOld != zoom) {
-	   posX += (mX/zoomOld) - (mX/zoom);
+	   posX += (mX/(2 * zoomOld)) - (mX/(2 * zoom));
 	   posY -= (mY/zoomOld) - (mY/zoom);
 
 	   correctPosX();
@@ -157,23 +157,22 @@ void Game::signalChange() {
 }
 
 void Game::changeAngle(bool left) {
+	int tmp = posX;
 	if (left) {
 		angle++;
-		int tmp = posX;
-		posX = (posY*2 + (map.maxY + map.maxX));
-		posY = -((tmp/2) - (map.maxY + map.maxX));
-		correctPosX();
-		correctPosY();
+		posX = posY - ((getMaxPosX() * 3)/zoom);
+		posY = -tmp;
 		if (angle > 3) {
 			angle = 0;
 		}
 	} else {
 		angle--;
-		int tmp = posX;
-		posX = (2*(map.maxY + map.maxX))-(posY*2 + (map.maxY + map.maxX));
-		posY = ((tmp/2) - (map.maxY + map.maxX));
+		posX = -posY;
+		posY = tmp + ((getMaxPosY() * 3)/zoom);
 		if (angle < 0) {
 			angle = 3;
 		}
 	}
+	correctPosX();
+	correctPosY();
 }

@@ -70,28 +70,28 @@ public:
 	int getPosY() const {
 		return posY;
 	}
+	int getMaxPosX() {
+		return (map.maxY + map.maxX) / 2;
+	}
+	int getMaxPosY() {
+		return (map.maxY + map.maxX) / 2;
+	}
 
 
 protected:
 	void correctPosY() {
-		   if (posY < -getMaxY()) {
-			   posY = -getMaxY();
-		   } else if (posY > getMaxY()) {
-			   posY = getMaxY();
+		   if (posY < -getMaxPosY()) {
+			   posY = -getMaxPosY();
+		   } else if (posY > getMaxPosY()) {
+			   posY = getMaxPosY();
 		   }
 	}
 	void correctPosX() {
-		   if (posX < 0) {
-			   posX = 0;
-		   } else if (posX > getMaxX()) {
-			   posX = getMaxX();
+		   if (posX < -getMaxPosX()) {
+			   posX = -getMaxPosX();
+		   } else if (posX > getMaxPosX()) {
+			   posX = getMaxPosX();
 		   }
-	}
-	int getMaxX() {
-		return (map.maxY + map.maxX)*2;
-	}
-	int getMaxY() {
-		return (map.maxY + map.maxX) / 2;
 	}
 
 	int		evolutionLevel;
