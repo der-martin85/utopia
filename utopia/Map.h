@@ -9,12 +9,27 @@
 #define MAP_H_
 
 #include "Field.h"
+#include "SDL2/SDL_stdinc.h"
 
 class Map {
 public:
+	enum oceans_t {
+		OCEAN_NONE	= 0,
+		OCEAN_NORTH	= 1,
+		OCEAN_WEST	= 2,
+		OCEAN_SOUTH	= 4,
+		OCEAN_EAST	= 8
+	};
+	enum river_t {
+		RIVER_NONE			= 0,
+		RIVER_NORTHSOUTH	= 1,
+		RIVER_EASTWEST		= 2
+	};
+
 	Map(int x, int y);
+	Map(char* data, int length);
 	~Map();
-	void generateMap();
+	void generateMap(Uint8 oceans, river_t river, Uint8 waterLevel);
 
 	const Field* getField(int x, int y) const {
 		return &(map[x][y]);

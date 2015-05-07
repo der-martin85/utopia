@@ -73,11 +73,11 @@ void Game::changeZoom(int change) {
    int zoomOld = zoom;
 
    zoom += change;
-   if (zoom < 4) {
-	   zoom = 4;
+   if (zoom < 3) {
+	   zoom = 3;
    }
-   if (zoom > 32) {
-	   zoom = 32;
+   if (zoom > 64) {
+	   zoom = 64;
    }
 
    if (zoomOld != zoom) {
