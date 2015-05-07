@@ -106,6 +106,9 @@ int main(int argc, char* argv[]) {
 			   if (state[SDL_SCANCODE_R]) {
 				   game.changeAngle(false);
 			   }
+			   if (state[SDL_SCANCODE_G]) {
+				   game.generateMap();
+			   }
 			   break;
 		   }
 	   }
