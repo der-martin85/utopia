@@ -5,6 +5,7 @@
 
 #include "Map.h"
 #include "RenderThread.h"
+#include "SoundThread.h"
 
 //const int SCREEN_WIDTH = 1280;
 //const int SCREEN_HEIGHT = 800;
@@ -39,6 +40,7 @@ int main(int argc, char* argv[]) {
 	if (FullScreen) {
 		renderThread->changeToFullScreen();
 	}
+	SoundThread* soundThread = SoundThread::startThread();
 
 	while (!renderThread->quit)
 	{
@@ -130,6 +132,9 @@ int main(int argc, char* argv[]) {
 	}
    if (renderThread != NULL) {
 	   delete renderThread;
+   }
+   if (soundThread != NULL) {
+	   delete soundThread;
    }
 
 	return 0;

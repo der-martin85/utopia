@@ -40,6 +40,18 @@ void RenderThread::close() {
     	SDL_DestroyTexture(groundTextures[i]);
     	//Deallocate surface
     	SDL_FreeSurface(groundIMG[i]);
+
+    	SDL_DestroyTexture(treesTextures[i]);
+    	//Deallocate surface
+    	SDL_FreeSurface(treesIMG[i]);
+    }
+    for (int i = 0; i < 3; i++) {
+    	SDL_DestroyTexture(stoneTextures[i]);
+    	//Deallocate surface
+    	SDL_FreeSurface(stoneIMG[i]);
+    	SDL_DestroyTexture(goldTextures[i]);
+    	//Deallocate surface
+    	SDL_FreeSurface(goldIMG[i]);
     }
 
 	SDL_DestroyRenderer(renderer);
