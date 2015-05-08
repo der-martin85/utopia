@@ -232,8 +232,21 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
     for (int r = rand() % 100; r < waterLevel; r = rand() % 100) {
     	int xs = rand() % maxX;
     	int ys = rand() % maxY;
+    	int maxSpan = maxX > maxY ? maxY : maxX;
+		int span = 1;
+		for (int i = 0; i < 4; i++ ) {
+			span += (rand() % ((maxSpan*waterLevel)/1600));
+		}
     	map[xs][ys].setType(false);
-
+        for (int x = xs; x < maxX && x < (xs + span); x++) {
+        	for (int y = ys; y < maxY && y < (ys + span); y++) {
+        		if (map[x][y].getType() && (
+        				(x == 0 || !map[x-1][y].getType()) ||
+        				(y == 0 || !map[x][y-1].getType()))) {
+        			map[x][y].setType((rand() % 100) < waterLevel);
+        		}
+        	}
+        }
     }
 
     // Create deep Water
@@ -251,21 +264,53 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
     	}
     }
 
-    // Create Meadows
-    for (int r = rand() % 100; r < waterLevel; r = rand() % 100) {
-    	int xs = rand() % maxX;
-    	int ys = rand() % maxY;
-    	if (map[xs][ys].getType()) {
-    		map[xs][ys].setMoist(true);
-    	}
-    }
+    // Create Meadows, Trees, Forests and Sand Dunes
+    for (int x = 0; x < maxX; x++) {
+    	for (int y = 0; y < maxY; y++) {
+        	if (((rand() % 100) < 5)) {
+        		switch (rand() % 6) {
+        		case 0:
+        			map[x][y].setStone((rand() % 70) + 1);
+        			break;
+        		case 1:
+        			map[x][y].setGold((rand() % 50) + 1);
+        			break;
+        		case 2:
+        			map[x][y].setIron((rand() % 60) + 1);
+        			break;
+        		case 3:
+        			map[x][y].setCopper((rand() % 55) + 1);
+        			break;
+        		case 4:
+        			map[x][y].setCoal((rand() % 50) + 1);
+        			break;
+        		case 5:
+        			map[x][y].setOil((rand() % 50) + 1);
+        			break;
+        		}
 
-    // Create Forests
-    for (int r = rand() % 100; r < waterLevel; r = rand() % 100) {
-    	int xs = rand() % maxX;
-    	int ys = rand() % maxY;
-    	if (map[xs][ys].getType()) {
-    		map[xs][ys].setTrees(rand() % 5);
+        	}
+
+
+        	if (map[x][y].getType()) {
+        		if (	(x == 0 || !map[x-1][y].getType() || (map[x-1][y].getType() && map[x-1][y].getMoist())) ||
+        				(y == 0 || !map[x][y-1].getType() || (map[x][y-1].getType() && map[x][y-1].getMoist()))) {
+        			map[x][y].setMoist((rand() % 10) < 9);
+        		} else {
+        			map[x][y].setMoist((rand() % 10) < 8);
+        		}
+        		if (map[x][y].getMoist() &&
+        				map[x][y].getStone() < 20 &&
+						map[x][y].getGold() < 20 &&
+						map[x][y].getIron() < 20 &&
+						map[x][y].getCopper() < 20 &&
+						map[x][y].getCoal() < 20 &&
+						map[x][y].getOil() < 20) {
+                	if (((rand() % 10) < 6)) {
+                		map[x][y].setTrees((rand() % 4) + 1);
+                	}
+        		}
+        	}
     	}
     }
 

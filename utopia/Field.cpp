@@ -44,6 +44,24 @@ void Field::setMoist(bool moist) {
 void Field::setTrees(unsigned int trees) {
 	this->trees = trees;
 }
+void Field::setStone(unsigned int stone) {
+	this->stone = stone;
+}
+void Field::setGold(unsigned int gold) {
+	this->gold = gold;
+}
+void Field::setIron(unsigned int iron) {
+	this->iron = iron;
+}
+void Field::setCopper(unsigned int copper) {
+	this->copper = copper;
+}
+void Field::setCoal(unsigned int coal) {
+	this->coal = coal;
+}
+void Field::setOil(unsigned int oil) {
+	this->oil = oil;
+}
 
 bool Field::getType() const {
 	return land;
@@ -53,5 +71,23 @@ bool Field::getMoist() const {
 }
 unsigned int Field::getTrees() const {
 	return trees;
+}
+unsigned int Field::getStone() const {
+	return stone;
+}
+unsigned int Field::getGold() const {
+	return gold;
+}
+unsigned int Field::getIron() const {
+	return iron;
+}
+unsigned int Field::getCopper() const {
+	return copper;
+}
+unsigned int Field::getCoal() const {
+	return coal;
+}
+unsigned int Field::getOil() const {
+	return oil;
 }
 

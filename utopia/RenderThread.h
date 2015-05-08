@@ -51,6 +51,9 @@ private:
 	SDL_Surface* treesIMG[4] = {NULL, NULL, NULL, NULL};
 	SDL_Texture* treesTextures[4] = {NULL,NULL,NULL,NULL};
 
+	SDL_Surface* stoneIMG[3] = {NULL, NULL, NULL};
+	SDL_Texture* stoneTextures[3] = {NULL,NULL,NULL};
+
 	SDL_Surface* selectedIMG = NULL;
 	SDL_Texture* selectedTexture = NULL;
 

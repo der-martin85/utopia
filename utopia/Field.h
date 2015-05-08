@@ -16,10 +16,22 @@ public:
 	void setType(bool land);
 	void setMoist(bool moist);
 	void setTrees(unsigned int trees);
+	void setStone(unsigned int stone);
+	void setGold(unsigned int gold);
+	void setIron(unsigned int iron);
+	void setCopper(unsigned int copper);
+	void setCoal(unsigned int coal);
+	void setOil(unsigned int oil);
 
 	bool getType() const;
 	bool getMoist() const;
 	unsigned int getTrees() const;
+	unsigned int getStone() const;
+	unsigned int getGold() const;
+	unsigned int getIron() const;
+	unsigned int getCopper() const;
+	unsigned int getCoal() const;
+	unsigned int getOil() const;
 
 	virtual ~Field();
 private:

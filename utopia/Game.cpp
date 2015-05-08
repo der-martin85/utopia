@@ -121,7 +121,7 @@ void Game::doneSelecting() {
 
 	   for (int iX = minX; iX <= maxX; iX++) {
 		   for (int iY = minY; iY <= maxY; iY++) {
-			   map.getFieldForChange(iX, iY)->setType(true);
+			   map.getFieldForChange(iX, iY)->reset();
 		   }
 	   }
 
