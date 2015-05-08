@@ -33,8 +33,7 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
 
     for (int x = 0; x < maxX; x++) {
     	for (int y = 0; y < maxY; y++) {
-    		map[x][y].setType(true);
-    		map[x][y].setMoist(false);
+    		map[x][y].reset();
     	}
     }
 

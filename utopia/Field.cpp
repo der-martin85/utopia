@@ -23,6 +23,18 @@ Field::Field():
 Field::~Field() {
 }
 
+void Field::reset() {
+	land = true;
+	moist = false;
+	trees = 0;
+	stone = 0;
+	gold = 0;
+	iron = 0;
+	copper = 0;
+	coal = 0;
+	oil = 0;
+}
+
 void Field::setType(bool land) {
 	this->land = land;
 }

@@ -11,6 +11,7 @@
 class Field {
 public:
 	Field();
+	void reset();
 
 	void setType(bool land);
 	void setMoist(bool moist);
