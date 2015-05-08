@@ -24,8 +24,6 @@ Map::~Map() {
 	delete[] map;
 }
 
-#include <iostream>
-
 void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
     time_t t;
     time(&t);

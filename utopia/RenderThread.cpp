@@ -145,10 +145,33 @@ RenderThread::~RenderThread() {
 	SDL_WaitThread(thread, NULL);
 }
 
-void RenderThread::render() {
+bool checkXY(int add, int xy, int xyMax) {
+	if (add > 0) {
+		return (xy < xyMax);
+	}
+	return (xy >= 0);
+}
 
-	for (int y = 0; y < game->getMap()->maxY; y++) {
-		for (int x = game->getMap()->maxX-1; x >= 0 ; x--) {
+void RenderThread::render() {
+	int yStart = 0;
+	int xStart = game->getMap()->maxX-1;
+	int xAdd = -1;
+	int yAdd = 1;
+	if (game->getAngle() == 1) {
+		xStart = 0;
+		xAdd = 1;
+	} else if (game->getAngle() == 2) {
+		xStart = 0;
+		xAdd = 1;
+		yStart = game->getMap()->maxY-1;
+		yAdd = -1;
+	} else if (game->getAngle() == 3) {
+		yStart = game->getMap()->maxY-1;
+		yAdd = -1;
+	}
+
+	for (int y = yStart; checkXY(yAdd, y, game->getMap()->maxY); y += yAdd) {
+		for (int x = xStart; checkXY(xAdd, x, game->getMap()->maxX); x += xAdd) {
 			SDL_Rect dstrect = isoTo2D(x, y);
 			if (dstrect.x + dstrect.w > 0 && dstrect.y + dstrect.h > 0 &&
 				   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT)
