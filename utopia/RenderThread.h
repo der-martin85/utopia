@@ -54,6 +54,9 @@ private:
 	SDL_Surface* stoneIMG[3] = {NULL, NULL, NULL};
 	SDL_Texture* stoneTextures[3] = {NULL,NULL,NULL};
 
+	SDL_Surface* goldIMG[3] = {NULL, NULL, NULL};
+	SDL_Texture* goldTextures[3] = {NULL,NULL,NULL};
+
 	SDL_Surface* selectedIMG = NULL;
 	SDL_Texture* selectedTexture = NULL;
 

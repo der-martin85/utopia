@@ -74,12 +74,17 @@ bool RenderThread::loadMedia()
     stoneIMG[1] = IMG_Load("./images/stone2.png");
     stoneIMG[2] = IMG_Load("./images/stone3.png");
 
+    goldIMG[0] = IMG_Load("./images/gold1.png");
+    goldIMG[1] = IMG_Load("./images/gold2.png");
+    goldIMG[2] = IMG_Load("./images/gold3.png");
+
     for (int i = 0; i < 4; i++) {
     	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, groundIMG[i]);
     	treesTextures[i] = SDL_CreateTextureFromSurface(renderer, treesIMG[i]);
     }
     for (int i = 0; i < 3; i++) {
     	stoneTextures[i] = SDL_CreateTextureFromSurface(renderer, stoneIMG[i]);
+    	goldTextures[i] = SDL_CreateTextureFromSurface(renderer, goldIMG[i]);
     }
 
     selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
@@ -197,6 +202,13 @@ void RenderThread::render() {
 							num = 2;
 						}
 						SDL_RenderCopy(renderer, stoneTextures[num], NULL, &dstrect);
+					}
+					if (field->getGold() > 20) {
+						int num = (field->getGold() - 20) / 10;
+						if (num > 2) {
+							num = 2;
+						}
+						SDL_RenderCopy(renderer, goldTextures[num], NULL, &dstrect);
 					}
 					if (field->getTrees() > 0) {
 						int num = field->getTrees() - 1;

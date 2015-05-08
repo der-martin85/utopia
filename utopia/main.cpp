@@ -6,8 +6,8 @@
 #include "Map.h"
 #include "RenderThread.h"
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 800;
+//const int SCREEN_WIDTH = 1280;
+//const int SCREEN_HEIGHT = 800;
 
 int main(int argc, char* argv[]) {
 
@@ -15,6 +15,16 @@ int main(int argc, char* argv[]) {
 
     const int fieldx = 100;
     const int fieldy = 100;
+
+    int SCREEN_WIDTH = 1280;
+    int SCREEN_HEIGHT = 800;
+    bool FullScreen = false;
+
+    if (argc == 3) {
+    	SCREEN_WIDTH = atoi(argv[1]);
+    	SCREEN_HEIGHT = atoi(argv[2]);
+    	FullScreen = true;
+    }
 
 	//Map f = Map(fieldx, fieldy);
 	//f.generateMap();
@@ -24,6 +34,10 @@ int main(int argc, char* argv[]) {
 	RenderThread* renderThread = RenderThread::startThread(SCREEN_WIDTH, SCREEN_HEIGHT, &game);
 	if (renderThread == NULL) {
 		return 0;
+	}
+
+	if (FullScreen) {
+		renderThread->changeToFullScreen();
 	}
 
 	while (!renderThread->quit)
