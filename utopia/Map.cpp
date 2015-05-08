@@ -34,8 +34,11 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
     for (int x = 0; x < maxX; x++) {
     	for (int y = 0; y < maxY; y++) {
     		map[x][y].setType(true);
+    		map[x][y].setMoist(false);
     	}
     }
+
+    // Create Coasts
 
 	if (oceans & OCEAN_NORTH) {
     	for (int y = 0; y < maxY; y++) {
@@ -126,8 +129,11 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
 	    }
 	}
 
+	// Create River
+
     if (river == RIVER_EASTWEST) {
     	int middle = (rand() %( maxX/3)) + (rand() %( maxX/3)) + (rand() %( maxX/3));
+    	int oldspana, oldspanb;
     	for (int y = 0; y < maxY; y++) {
 			int spana = 1;
 			for (int i = 0; i < 4; i++ ) {
@@ -145,6 +151,8 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
         			map[x][y].setType(false);
     			}
     		} else {
+    			spana = (spana + oldspana) / 2;
+    			spanb = (spanb + oldspanb) / 2;
     			for (int x = middle; x < maxX && x < (middle + spana); x++) {
     				if (!(map[x][y-1].getType()) || x == 0 || !(map[x-1][y].getType())) {
     					map[x][y].setType(false);
@@ -166,10 +174,15 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
     				}
     			}
     		}
+    		oldspana = middle;
+    		oldspanb = middle;
     		middle = middle + ((spana - spanb) / 2);
+    		oldspana = middle - oldspana + spana;
+    		oldspanb = middle - oldspanb + spanb;
     	}
     } else if (river == RIVER_NORTHSOUTH) {
     	int middle = (rand() %( maxX/3)) + (rand() %( maxX/3)) + (rand() %( maxX/3));
+    	int oldspana, oldspanb;
     	for (int x = 0; x < maxX; x++) {
 			int spana = 1;
 			for (int i = 0; i < 4; i++ ) {
@@ -187,6 +200,8 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
         			map[x][y].setType(false);
     			}
     		} else {
+    			spana = (spana + oldspana) / 2;
+    			spanb = (spanb + oldspanb) / 2;
     			for (int y = middle; y < maxY && y < (middle + spana); y++) {
     				if (!(map[x-1][y].getType()) || y == 0 || !(map[x][y-1].getType())) {
     					map[x][y].setType(false);
@@ -208,84 +223,53 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
     				}
     			}
     		}
+    		oldspana = middle;
+    		oldspanb = middle;
     		middle = middle + ((spana - spanb) / 2);
+    		oldspana = middle - oldspana + spana;
+    		oldspanb = middle - oldspanb + spanb;
     	}
     }
 
-//    const int probabilities[9] = {
-//    		3,
-//    		65,
-//    		30,
-//    		85,
-//    		30,
-//    		40,
-//    		30,
-//    		99,
-//			50
-//    };
-//
-//    for (int s = 0; s < maxX && s < maxY; s++) {
-//    	if (s < maxX) {
-//    		int x = s;
-//			for (int y = s; y < maxY; y++) {
-//				int r = rand() % 100;
-//				int p = 0;
-//				if (y > 0) {
-//					if (x > 0) {
-//						if (y < (maxY-1)) {
-//							if (map[x][y-1].getType()) p += 1;
-//							if (map[x-1][y].getType()) p += 2;
-//							if (map[x-1][y+1].getType()) p += 4;
-//						} else {
-//							if (map[x][y-1].getType()) p += 1;
-//							if (map[x-1][y].getType()) p += 6;
-//						}
-//					} else {
-//						if (map[x][y-1].getType()) p += 7;
-//					}
-//				} else if (x > 0) {
-//					if (y < (maxY-1)) {
-//						if (map[x-1][y].getType()) p += 3;
-//						if (map[x-1][y+1].getType()) p += 4;
-//					} else {
-//						if (map[x-1][y].getType()) p += 7;
-//					}
-//				} else {
-//					p = 8;
-//				}
-//				map[x][y].setType(r < probabilities[p]);
-//			}
-//    	}
-//    	if (s < maxY) {
-//    		int y = s;
-//    		for (int x = s+1; x < maxX; x++) {
-//				int r = rand() % 100;
-//				int p = 0;
-//				if (x > 0) {
-//					if (y > 0) {
-//						if (x < (maxX-1)) {
-//							if (map[x-1][y].getType()) p += 1;
-//							if (map[x][y-1].getType()) p += 2;
-//							if (map[x+1][y-1].getType()) p += 4;
-//						} else {
-//							if (map[x-1][y].getType()) p += 1;
-//							if (map[x][y-1].getType()) p += 6;
-//						}
-//					} else {
-//						if (map[x-1][y].getType()) p += 7;
-//					}
-//				} else if (y > 0) {
-//					if (x < (maxX-1)) {
-//						if (map[x][y-1].getType()) p += 3;
-//						if (map[x+1][y-1].getType()) p += 4;
-//					} else {
-//						if (map[x][y-1].getType()) p += 7;
-//					}
-//				} else {
-//					p = 8;
-//				}
-//				map[x][y].setType(r < probabilities[p]);
-//    		}
-//    	}
-//    }
+    // Create Lakes
+    for (int r = rand() % 100; r < waterLevel; r = rand() % 100) {
+    	int xs = rand() % maxX;
+    	int ys = rand() % maxY;
+    	map[xs][ys].setType(false);
+
+    }
+
+    // Create deep Water
+    for (int x = 0; x < maxX; x++) {
+    	for (int y = 0; y < maxY; y++) {
+    		if (!(map[x][y].getType())) {
+    			if (	(x == 0 || !(map[x-1][y].getType())) &&
+    					(y == 0 || !(map[x][y-1].getType())) &&
+						(x == (maxX - 1) || !(map[x+1][y].getType())) &&
+						(y == (maxY - 1) || !(map[x][y+1].getType())))
+    			{
+    				map[x][y].setMoist(true);
+    			}
+    		}
+    	}
+    }
+
+    // Create Meadows
+    for (int r = rand() % 100; r < waterLevel; r = rand() % 100) {
+    	int xs = rand() % maxX;
+    	int ys = rand() % maxY;
+    	if (map[xs][ys].getType()) {
+    		map[xs][ys].setMoist(true);
+    	}
+    }
+
+    // Create Forests
+    for (int r = rand() % 100; r < waterLevel; r = rand() % 100) {
+    	int xs = rand() % maxX;
+    	int ys = rand() % maxY;
+    	if (map[xs][ys].getType()) {
+    		map[xs][ys].setTrees(rand() % 5);
+    	}
+    }
+
 }

@@ -13,9 +13,12 @@ public:
 	Field();
 
 	void setType(bool land);
-	bool getType() const;
+	void setMoist(bool moist);
+	void setTrees(unsigned int trees);
 
-	int getTextureNumber() const;
+	bool getType() const;
+	bool getMoist() const;
+	unsigned int getTrees() const;
 
 	virtual ~Field();
 private:

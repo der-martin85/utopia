@@ -26,19 +26,20 @@ Field::~Field() {
 void Field::setType(bool land) {
 	this->land = land;
 }
+void Field::setMoist(bool moist) {
+	this->moist = moist;
+}
+void Field::setTrees(unsigned int trees) {
+	this->trees = trees;
+}
+
 bool Field::getType() const {
 	return land;
 }
-
-int Field::getTextureNumber() const {
-	if (land) {
-		if (moist) {
-			return 1;
-		} else {
-			return 0;
-		}
-	} else if (moist) {
-		return 5;
-	}
-	return 4;
+bool Field::getMoist() const {
+	return moist;
 }
+unsigned int Field::getTrees() const {
+	return trees;
+}
+

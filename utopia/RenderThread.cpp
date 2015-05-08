@@ -60,20 +60,19 @@ bool RenderThread::loadMedia()
     //gHelloWorld = SDL_LoadBMP( "02_getting_an_image_on_the_screen/hello_world.bmp" );
     groundIMG[0] = IMG_Load("./images/sand.png");
     groundIMG[1] = IMG_Load("./images/gras.png");
-    groundIMG[2] = IMG_Load("./images/trees.png");
-    groundIMG[3] = IMG_Load("./images/forest.png");
-    groundIMG[4] = IMG_Load("./images/water0.png");
-    groundIMG[5] = IMG_Load("./images/water1.png");
+    groundIMG[2] = IMG_Load("./images/water0.png");
+    groundIMG[3] = IMG_Load("./images/water1.png");
 
     selectedIMG = IMG_Load("./images/selected.png");
-    if(groundIMG[0] == NULL )
-    {
-        printf( "Unable to load image");
-        success = false;
-    }
 
-    for (int i = 0; i < 6; i++) {
+    treesIMG[0] = IMG_Load("./images/trees1.png");
+    treesIMG[1] = IMG_Load("./images/trees2.png");
+    treesIMG[2] = IMG_Load("./images/trees3.png");
+    treesIMG[3] = IMG_Load("./images/trees4.png");
+
+    for (int i = 0; i < 4; i++) {
     	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, groundIMG[i]);
+    	treesTextures[i] = SDL_CreateTextureFromSurface(renderer, treesIMG[i]);
     }
 
     selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
@@ -152,9 +151,30 @@ void RenderThread::render() {
 		for (int x = game->getMap()->maxX-1; x >= 0 ; x--) {
 			SDL_Rect dstrect = isoTo2D(x, y);
 			if (dstrect.x + dstrect.w > 0 && dstrect.y + dstrect.h > 0 &&
-				   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT) {
+				   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT)
+			{
 				game->lock();
-			   SDL_RenderCopy(renderer, groundTextures[game->getMap()->getField(x, y)->getTextureNumber()], NULL, &dstrect);
+				const Field* field = game->getMap()->getField(x, y);
+				if (field->getType()) {
+					if (field->getMoist()) {
+						   SDL_RenderCopy(renderer, groundTextures[1], NULL, &dstrect);
+					} else {
+						   SDL_RenderCopy(renderer, groundTextures[0], NULL, &dstrect);
+					}
+					if (field->getTrees() > 0) {
+						int num = field->getTrees() - 1;
+						if (num > 3) {
+							num = 3;
+						}
+						SDL_RenderCopy(renderer, treesTextures[num], NULL, &dstrect);
+					}
+				} else {
+					if (field->getMoist()) {
+						   SDL_RenderCopy(renderer, groundTextures[3], NULL, &dstrect);
+					} else {
+						   SDL_RenderCopy(renderer, groundTextures[2], NULL, &dstrect);
+					}
+				}
 			   if ((((x >= game->getSelectedStartX() && x <= game->getSelectedEndX()) ||
 							   (x <= game->getSelectedStartX() && x >= game->getSelectedEndX())) &&
 					   ((y >= game->getSelectedStartY() && y <= game->getSelectedEndY()) ||

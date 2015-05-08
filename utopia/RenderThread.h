@@ -45,12 +45,13 @@ private:
 	SDL_Thread* thread;
 	pthread_mutex_t mutex;
 
-	SDL_Surface* groundIMG[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
+	SDL_Surface* groundIMG[4] = {NULL, NULL, NULL, NULL};
+	SDL_Texture* groundTextures[4] = {NULL,NULL,NULL,NULL};
+
+	SDL_Surface* treesIMG[4] = {NULL, NULL, NULL, NULL};
+	SDL_Texture* treesTextures[4] = {NULL,NULL,NULL,NULL};
 
 	SDL_Surface* selectedIMG = NULL;
-
-	SDL_Texture* groundTextures[6] = {NULL,NULL,NULL,NULL, NULL, NULL};
-
 	SDL_Texture* selectedTexture = NULL;
 
 	static int threadMethod(void* param);
