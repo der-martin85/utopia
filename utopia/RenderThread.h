@@ -2,7 +2,7 @@
  * RenderThread.h
  *
  *  Created on: 04.05.2015
- *      Author: jentin
+ *      Author: Martin Ringwelski
  */
 
 #ifndef RENDERTHREAD_H_

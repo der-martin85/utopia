@@ -2,7 +2,7 @@
  * RenderThread.cpp
  *
  *  Created on: 04.05.2015
- *      Author: jentin
+ *      Author: Martin Ringwelski
  */
 
 #include "RenderThread.h"

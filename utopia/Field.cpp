@@ -2,16 +2,25 @@
  * Field.cpp
  *
  *  Created on: 04.05.2015
- *      Author: jentin
+ *      Author: Martin Ringwelski
  */
 
 #include "Field.h"
 
-Field::Field(): land(true) {
+Field::Field():
+	land(true),
+	moist(false),
+	trees(0),
+	stone(0),
+	gold(0),
+	iron(0),
+	copper(0),
+	coal(0),
+	oil(0)
+{
 }
 
 Field::~Field() {
-	// TODO Auto-generated destructor stub
 }
 
 void Field::setType(bool land) {
@@ -23,7 +32,13 @@ bool Field::getType() const {
 
 int Field::getTextureNumber() const {
 	if (land) {
-		return 0;
+		if (moist) {
+			return 1;
+		} else {
+			return 0;
+		}
+	} else if (moist) {
+		return 5;
 	}
 	return 4;
 }
