@@ -19,7 +19,7 @@ public:
 	Game(int x, int y);
 	virtual ~Game();
 
-	void setMouseState();
+	void setMouseState(int mX, int mY);
 
 	void changeZoom(int change);
 	void changeAngle(bool left);

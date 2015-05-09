@@ -24,15 +24,27 @@ Game::Game(int x, int y):
 Game::~Game() {
 }
 
-void Game::setMouseState() {
-	   SDL_GetMouseState(&mX, &mY);
-	   // Auf welchem Feld sind wir?
-	   int mrX = mX + ((posX + getMaxPosX()) * zoom * 2);
-	   int mrY = mY - (posY * zoom);
-	   int miX = (mrX - ((mrY - (zoom*3))*2) ) / (4 * zoom);
-	   int miY = ((mrX/2) + mrY - (zoom*3)) / (2 * zoom);
+void Game::setMouseState(int mX, int mY) {
+	this->mX = mX;
+	this->mY = mY;
 
-	   switch (angle) {
+	if (selected[2] != -1) {
+		if (mX < 150) {
+			changePosX(-1);
+		}
+		if (mY < 50) {
+			changePosY(+1);
+		}
+	}
+
+	if (mX >= 100) {
+		// On which field are we?
+		int mrX = mX + ((posX + getMaxPosX()) * zoom * 2) - 100;
+		int mrY = mY - (posY * zoom);
+		int miX = (mrX - ((mrY - (zoom*3))*2) ) / (4 * zoom);
+		int miY = ((mrX/2) + mrY - (zoom*3)) / (2 * zoom);
+
+		switch (angle) {
 		case 1: {
 			if (miX >= map.maxY) miX = map.maxY-1;
 			if (miX < 0) miX = 0;
@@ -58,61 +70,64 @@ void Game::setMouseState() {
 		case 0:
 		default: {
 			break; }
-	   }
+		}
 
-	   if (miX >= map.maxX) miX = map.maxX-1;
-	   if (miY >= map.maxY) miY = map.maxY-1;
-	   if (miX < 0) miX = 0;
-	   if (miY < 0) miY = 0;
-	   selected[0] = miX;
-	   selected[1] = miY;
+		if (miX >= map.maxX) miX = map.maxX-1;
+		if (miY >= map.maxY) miY = map.maxY-1;
+		if (miX < 0) miX = 0;
+		if (miY < 0) miY = 0;
+		selected[0] = miX;
+		selected[1] = miY;
+	}
 }
 
 void Game::changeZoom(int change) {
-   int zoomOld = zoom;
+	int zoomOld = zoom;
 
-   zoom += change;
-   if (zoom < 3) {
-	   zoom = 3;
-   }
-   if (zoom > 64) {
-	   zoom = 64;
-   }
+	zoom += change;
+	if (zoom < 3) {
+		zoom = 3;
+	}
+	if (zoom > 64) {
+		zoom = 64;
+	}
 
-   if (zoomOld != zoom) {
-	   posX += (mX/(2 * zoomOld)) - (mX/(2 * zoom));
-	   posY -= (mY/zoomOld) - (mY/zoom);
+	if (zoomOld != zoom) {
+		posX += ((mX-100)/(2 * zoomOld)) - ((mX-100)/(2 * zoom));
+		posY -= (mY/zoomOld) - (mY/zoom);
 
-	   correctPosX();
-	   correctPosY();
-   }
+		correctPosX();
+		correctPosY();
+	}
 }
 
 void Game::changePosX(int change) {
-	   posX += change;
-	   correctPosX();
+	posX += change;
+	correctPosX();
 }
 
 void Game::changePosY(int change) {
-	   posY += change;
-	   correctPosY();
+	posY += change;
+	correctPosY();
 }
 
 void Game::startSelecting() {
-   lock();
-   if (selected[0] >= 0 &&
-		   selected[1] >= 0 &&
-		   selected[0] < map.maxX &&
-		   selected[1] < map.maxY) {
-	   selected[2] = selected[0];
-	   selected[3] = selected[1];
-   }
-   unlock();
+	if (mX >= 100) {
+		lock();
+		if (selected[0] >= 0 &&
+			   selected[1] >= 0 &&
+			   selected[0] < map.maxX &&
+			   selected[1] < map.maxY) {
+		   selected[2] = selected[0];
+		   selected[3] = selected[1];
+		}
+		unlock();
+	}
 }
 
 void Game::doneSelecting() {
-   lock();
-   if (selected[2] > -1) {
+	lock();
+	if (selected[2] > -1) {
 	   const int minX = selected[0] > selected[2] ? selected[2] : selected[0];
 	   const int minY = selected[1] > selected[3] ? selected[3] : selected[1];
 	   const int maxX = selected[0] > selected[2] ? selected[0] : selected[2];
@@ -126,8 +141,8 @@ void Game::doneSelecting() {
 
 	   selected[2] = -1;
 	   selected[3] = -1;
-   }
-   unlock();
+	}
+	unlock();
 }
 
 void Game::startDragging() {

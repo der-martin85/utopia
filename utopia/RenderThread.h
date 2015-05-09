@@ -26,14 +26,15 @@ public:
 		changeWindow = true;
 		pthread_mutex_unlock(&mutex);
 	}
-	bool quit;
 private:
 	bool init();
 	bool loadMedia();
 	void close();
 	void render();
+	void renderMenu();
 	SDL_Rect isoTo2D(int x, int y);
 
+	bool quit;
 	bool changeFullscreen;
 	bool changeWindow;
 	SDL_Window* window;
@@ -43,6 +44,9 @@ private:
 	Game* game;
 	SDL_Thread* thread;
 	pthread_mutex_t mutex;
+
+	SDL_Texture* menuBackgroundTexture = NULL;
+	SDL_Texture* menuSettingsTexture = NULL;
 
 	SDL_Texture* groundTextures[4] = {NULL,NULL,NULL,NULL};
 

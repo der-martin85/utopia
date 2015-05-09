@@ -6,6 +6,7 @@
 #include "Map.h"
 #include "RenderThread.h"
 #include "SoundThread.h"
+#include "Menu.h"
 
 //const int SCREEN_WIDTH = 1280;
 //const int SCREEN_HEIGHT = 800;
@@ -14,8 +15,8 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
 
-    const int fieldx = 100;
-    const int fieldy = 100;
+    const int fieldx = 200;
+    const int fieldy = 200;
 
     int SCREEN_WIDTH = 1280;
     int SCREEN_HEIGHT = 800;
@@ -42,16 +43,22 @@ int main(int argc, char* argv[]) {
 	}
 	SoundThread* soundThread = SoundThread::startThread();
 
-	while (!renderThread->quit)
+	Menu menu;
+
+	while (!menu.quit)
 	{
 	   SDL_WaitEvent(&event);
 
-	   game.setMouseState();
+	   int mX, mY;
+	   SDL_GetMouseState(&mX, &mY);
+
+	   game.setMouseState(mX, mY);
+	   menu.setMouseState(mX, mY);
 
 	   switch(event.type)
 	   {
 	   case SDL_QUIT:
-		   renderThread->quit = true;
+		   menu.quit = true;
 		   break;
 	   case SDL_MOUSEWHEEL:
 		   {
@@ -64,12 +71,18 @@ int main(int argc, char* argv[]) {
 	   case SDL_MOUSEBUTTONDOWN:
 		   {
 			   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
-			   if (mbe->button == SDL_BUTTON_RIGHT) {
-				   game.startDragging();
-			   }
-			   if (mbe->button == SDL_BUTTON_LEFT) {
-				   // Feld markieren
-				   game.startSelecting();
+			   if (mX >= 100) {
+				   if (mbe->button == SDL_BUTTON_RIGHT) {
+					   game.startDragging();
+				   }
+				   if (mbe->button == SDL_BUTTON_LEFT) {
+					   // Feld markieren
+					   game.startSelecting();
+				   }
+			   } else {
+				   if (mbe->button == SDL_BUTTON_LEFT) {
+					   menu.click();
+				   }
 			   }
 			   break;
 		   }
@@ -114,7 +127,7 @@ int main(int argc, char* argv[]) {
 				   renderThread->changeToWindow();
 			   }
 			   if (state[SDL_SCANCODE_ESCAPE]) {
-				   renderThread->quit = true;
+				   menu.quit = true;
 			   }
 			   if (state[SDL_SCANCODE_L]) {
 				   game.changeAngle(true);

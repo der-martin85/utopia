@@ -50,6 +50,14 @@ void RenderThread::close() {
     	goldTextures[i] = NULL;
     }
 
+	SDL_DestroyTexture(selectedTexture);
+	selectedTexture = NULL;
+	SDL_DestroyTexture(menuBackgroundTexture);
+	menuBackgroundTexture = NULL;
+	SDL_DestroyTexture(menuSettingsTexture);
+	menuSettingsTexture = NULL;
+
+
 	SDL_DestroyRenderer(renderer);
 	renderer = NULL;
 
@@ -70,13 +78,12 @@ bool RenderThread::loadMedia()
 	SDL_Surface* stoneIMG[3] = {NULL, NULL, NULL};
 	SDL_Surface* goldIMG[3] = {NULL, NULL, NULL};
 	SDL_Surface* selectedIMG = NULL;
+	SDL_Surface* menuIMGs = NULL;
 
 	groundIMG[0] = IMG_Load("./images/sand.png");
     groundIMG[1] = IMG_Load("./images/gras.png");
     groundIMG[2] = IMG_Load("./images/water0.png");
     groundIMG[3] = IMG_Load("./images/water1.png");
-
-    selectedIMG = IMG_Load("./images/selected.png");
 
     treesIMG[0] = IMG_Load("./images/trees1.png");
     treesIMG[1] = IMG_Load("./images/trees2.png");
@@ -91,6 +98,7 @@ bool RenderThread::loadMedia()
     goldIMG[1] = IMG_Load("./images/gold2.png");
     goldIMG[2] = IMG_Load("./images/gold3.png");
 
+
     for (int i = 0; i < 4; i++) {
     	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, groundIMG[i]);
     	SDL_FreeSurface(groundIMG[i]);
@@ -104,8 +112,16 @@ bool RenderThread::loadMedia()
     	SDL_FreeSurface(goldIMG[i]);
     }
 
+    selectedIMG = IMG_Load("./images/selected.png");
     selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
 	SDL_FreeSurface(selectedIMG);
+
+    menuIMGs = IMG_Load("./images/menu.png");
+    menuBackgroundTexture = SDL_CreateTextureFromSurface(renderer, menuIMGs);
+	SDL_FreeSurface(menuIMGs);
+    menuIMGs = IMG_Load("./images/menu-settings.png");
+    menuSettingsTexture = SDL_CreateTextureFromSurface(renderer, menuIMGs);
+	SDL_FreeSurface(menuIMGs);
 
     return success;
 }
@@ -131,9 +147,8 @@ int RenderThread::threadMethod(void* param) {
 	t->init();
 	t->loadMedia();
 
+	pthread_mutex_lock(&(t->mutex));
 	do {
-
-		pthread_mutex_lock(&(t->mutex));
 		if (t->changeFullscreen) {
 			SDL_SetWindowFullscreen(t->window, SDL_WINDOW_FULLSCREEN);
 			t->changeFullscreen = false;
@@ -146,10 +161,14 @@ int RenderThread::threadMethod(void* param) {
 		SDL_RenderClear(t->renderer);
 //		std::cout << "render" << std::endl;
 		t->render();
+		t->renderMenu();
+
 		SDL_RenderPresent(t->renderer);
 
 		t->game->waitForChange();
+		pthread_mutex_lock(&(t->mutex));
 	} while(!t->quit); //while(f->testAndDecrease());
+	pthread_mutex_unlock(&(t->mutex));
 
 //	std::cout << "done render" << std::endl;
 
@@ -170,6 +189,10 @@ RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game):
 }
 
 RenderThread::~RenderThread() {
+	pthread_mutex_lock(&mutex);
+	quit = true;
+	pthread_mutex_unlock(&mutex);
+	game->signalChange();
 	SDL_WaitThread(thread, NULL);
 	thread = NULL;
 	close();
@@ -257,6 +280,14 @@ void RenderThread::render() {
 
 }
 
+void RenderThread::renderMenu() {
+	SDL_Rect dstrect = {0, 0, 100, SCREEN_HEIGHT};
+	SDL_RenderCopy(renderer, menuBackgroundTexture, NULL, &dstrect);
+
+	dstrect = {10, 10, 80, 50};
+	SDL_RenderCopy(renderer, menuSettingsTexture, NULL, &dstrect);
+}
+
 SDL_Rect RenderThread::isoTo2D(int x, int y) {
 
 	switch (game->getAngle()) {
@@ -280,7 +311,7 @@ SDL_Rect RenderThread::isoTo2D(int x, int y) {
 	}
 
 	SDL_Rect dstrect = {0, 0, (game->getZoom() * 4), (game->getZoom() * 4) };
-	dstrect.x = (y + x - (game->getPosX() + game->getMaxPosX())) * 2 * game->getZoom();
+	dstrect.x = (y + x - (game->getPosX() + game->getMaxPosX())) * 2 * game->getZoom() + 100;
 	dstrect.y = (y - x + game->getPosY()) * game->getZoom();
 	return dstrect;
 }
