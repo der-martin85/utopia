@@ -37,7 +37,6 @@ private:
 	bool changeFullscreen;
 	bool changeWindow;
 	SDL_Window* window;
-	SDL_Surface* screenSurface;
 	SDL_Renderer* renderer;
 	const int SCREEN_WIDTH;
 	const int SCREEN_HEIGHT;
@@ -45,19 +44,14 @@ private:
 	SDL_Thread* thread;
 	pthread_mutex_t mutex;
 
-	SDL_Surface* groundIMG[4] = {NULL, NULL, NULL, NULL};
 	SDL_Texture* groundTextures[4] = {NULL,NULL,NULL,NULL};
 
-	SDL_Surface* treesIMG[4] = {NULL, NULL, NULL, NULL};
 	SDL_Texture* treesTextures[4] = {NULL,NULL,NULL,NULL};
 
-	SDL_Surface* stoneIMG[3] = {NULL, NULL, NULL};
 	SDL_Texture* stoneTextures[3] = {NULL,NULL,NULL};
 
-	SDL_Surface* goldIMG[3] = {NULL, NULL, NULL};
 	SDL_Texture* goldTextures[3] = {NULL,NULL,NULL};
 
-	SDL_Surface* selectedIMG = NULL;
 	SDL_Texture* selectedTexture = NULL;
 
 	static int threadMethod(void* param);

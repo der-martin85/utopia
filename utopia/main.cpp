@@ -130,12 +130,14 @@ int main(int argc, char* argv[]) {
 	   }
 	   game.signalChange();
 	}
-   if (renderThread != NULL) {
+	if (renderThread != NULL) {
 	   delete renderThread;
-   }
-   if (soundThread != NULL) {
+	}
+	if (soundThread != NULL) {
 	   delete soundThread;
-   }
+	}
+	//Quit SDL subsystems
+	SDL_Quit();
 
 	return 0;
 }

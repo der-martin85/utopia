@@ -27,8 +27,7 @@ bool RenderThread::init() {
 			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
 			success = false;
 		} else {
-			//Get window surface
-			screenSurface = SDL_GetWindowSurface( window );
+			//Get renderer
 			renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
 		}
 	}
@@ -38,29 +37,27 @@ bool RenderThread::init() {
 void RenderThread::close() {
     for (int i = 0; i < 4; i++) {
     	SDL_DestroyTexture(groundTextures[i]);
-    	//Deallocate surface
-    	SDL_FreeSurface(groundIMG[i]);
+    	groundTextures[i] = NULL;
 
     	SDL_DestroyTexture(treesTextures[i]);
-    	//Deallocate surface
-    	SDL_FreeSurface(treesIMG[i]);
+    	treesTextures[i] = NULL;
     }
     for (int i = 0; i < 3; i++) {
     	SDL_DestroyTexture(stoneTextures[i]);
-    	//Deallocate surface
-    	SDL_FreeSurface(stoneIMG[i]);
+    	stoneTextures[i] = NULL;
+
     	SDL_DestroyTexture(goldTextures[i]);
-    	//Deallocate surface
-    	SDL_FreeSurface(goldIMG[i]);
+    	goldTextures[i] = NULL;
     }
 
 	SDL_DestroyRenderer(renderer);
+	renderer = NULL;
 
 	//Destroy window
-	SDL_DestroyWindow( window );
-	window = NULL;
-	//Quit SDL subsystems
-	SDL_Quit();
+	if (window != NULL) {
+		SDL_DestroyWindow(window);
+		window = NULL;
+	}
 }
 
 bool RenderThread::loadMedia()
@@ -68,9 +65,13 @@ bool RenderThread::loadMedia()
     //Loading success flag
     bool success = true;
 
-    //Load splash image
-    //gHelloWorld = SDL_LoadBMP( "02_getting_an_image_on_the_screen/hello_world.bmp" );
-    groundIMG[0] = IMG_Load("./images/sand.png");
+    SDL_Surface* groundIMG[4] = {NULL, NULL, NULL, NULL};
+	SDL_Surface* treesIMG[4] = {NULL, NULL, NULL, NULL};
+	SDL_Surface* stoneIMG[3] = {NULL, NULL, NULL};
+	SDL_Surface* goldIMG[3] = {NULL, NULL, NULL};
+	SDL_Surface* selectedIMG = NULL;
+
+	groundIMG[0] = IMG_Load("./images/sand.png");
     groundIMG[1] = IMG_Load("./images/gras.png");
     groundIMG[2] = IMG_Load("./images/water0.png");
     groundIMG[3] = IMG_Load("./images/water1.png");
@@ -92,14 +93,19 @@ bool RenderThread::loadMedia()
 
     for (int i = 0; i < 4; i++) {
     	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, groundIMG[i]);
+    	SDL_FreeSurface(groundIMG[i]);
     	treesTextures[i] = SDL_CreateTextureFromSurface(renderer, treesIMG[i]);
+    	SDL_FreeSurface(treesIMG[i]);
     }
     for (int i = 0; i < 3; i++) {
     	stoneTextures[i] = SDL_CreateTextureFromSurface(renderer, stoneIMG[i]);
+    	SDL_FreeSurface(stoneIMG[i]);
     	goldTextures[i] = SDL_CreateTextureFromSurface(renderer, goldIMG[i]);
+    	SDL_FreeSurface(goldIMG[i]);
     }
 
     selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
+	SDL_FreeSurface(selectedIMG);
 
     return success;
 }
@@ -147,8 +153,6 @@ int RenderThread::threadMethod(void* param) {
 
 //	std::cout << "done render" << std::endl;
 
-	t->close();
-
 	return 0;
 }
 
@@ -156,7 +160,7 @@ RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game):
 		quit(false),
 		changeFullscreen(false),
 		changeWindow(false),
-		window(NULL), screenSurface(NULL), renderer(NULL),
+		window(NULL), renderer(NULL),
 		SCREEN_WIDTH(screenWidth),
 		SCREEN_HEIGHT(screenHeight),
 		game(game),
@@ -167,6 +171,8 @@ RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game):
 
 RenderThread::~RenderThread() {
 	SDL_WaitThread(thread, NULL);
+	thread = NULL;
+	close();
 }
 
 bool checkXY(int add, int xy, int xyMax) {
