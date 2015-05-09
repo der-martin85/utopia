@@ -24,7 +24,7 @@ Map::~Map() {
 	delete[] map;
 }
 
-void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
+void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
     time_t t;
     time(&t);
     srand((unsigned int)t);
@@ -35,8 +35,8 @@ void Map::generateMap(Uint8 oceans, river_t river, Uint8 waterLevel) {
     	}
     }
 
+    // TODO: Work on Code duplication!
     // Create Coasts
-
 	if (oceans & OCEAN_NORTH) {
     	for (int y = 0; y < maxY; y++) {
     		for (int x = 0; x < maxX; x++) {

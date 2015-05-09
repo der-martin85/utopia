@@ -10,7 +10,7 @@
 
 class GameDate {
 public:
-	GameDate();
+	GameDate(int year = 0, int month = 1, int day = 1);
 	virtual ~GameDate();
 protected:
 	int year;

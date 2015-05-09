@@ -29,7 +29,7 @@ public:
 	Map(int x, int y);
 	Map(char* data, int length);
 	~Map();
-	void generateMap(Uint8 oceans, river_t river, Uint8 waterLevel);
+	void generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel);
 
 	const Field* getField(int x, int y) const {
 		return &(map[x][y]);

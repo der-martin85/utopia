@@ -22,7 +22,6 @@ Game::Game(int x, int y):
 }
 
 Game::~Game() {
-	// TODO Auto-generated destructor stub
 }
 
 void Game::setMouseState() {

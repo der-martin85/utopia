@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 	//Map f = Map(fieldx, fieldy);
 	//f.generateMap();
     Game game(fieldx, fieldy);
-    game.generateMap((Map::OCEAN_EAST | Map::OCEAN_NORTH), Map::RIVER_NORTHSOUTH, 80);
+    game.generateMap(rand() % 16, rand() % 3, (rand() % 40) + 50);
 
 	RenderThread* renderThread = RenderThread::startThread(SCREEN_WIDTH, SCREEN_HEIGHT, &game);
 	if (renderThread == NULL) {
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 				   game.changeAngle(false);
 			   }
 			   if (state[SDL_SCANCODE_G]) {
-				   game.generateMap((Map::OCEAN_EAST | Map::OCEAN_NORTH), Map::RIVER_NORTHSOUTH, 80);
+				   game.generateMap(rand() % 16, rand() % 3, (rand() % 40) + 50);
 			   }
 			   break;
 		   }

@@ -7,11 +7,12 @@
 
 #include "GameDate.h"
 
-GameDate::GameDate() {
-	// TODO Auto-generated constructor stub
-
+GameDate::GameDate(int year, int month, int day):
+		year(year),
+		month(month),
+		day(day)
+{
 }
 
 GameDate::~GameDate() {
-	// TODO Auto-generated destructor stub
 }

@@ -41,7 +41,7 @@ public:
 	const Map* getMap() const {
 		return &map;
 	}
-	void generateMap(Uint8 oceans, Map::river_t river, Uint8 waterLevel) {
+	void generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
 		map.generateMap(oceans, river, waterLevel);
 	}
 	int getSelectedStartX() const {
