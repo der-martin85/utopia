@@ -9,6 +9,9 @@
 #include <iterator>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
+#include <chrono>
+#include <thread>
+
 using namespace boost::filesystem;
 
 SoundThread* SoundThread::startThread() {
@@ -89,6 +92,7 @@ int SoundThread::threadMethod(void* param) {
 			}
 		}
 		//pthread_cond_wait(&(t->condition), &(t->mutex));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		pthread_mutex_lock(&(t->mutex));
 	}
 	pthread_mutex_unlock(&(t->mutex));

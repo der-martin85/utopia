@@ -5,7 +5,6 @@
  *      Author: Martin Ringwelski
  */
 
-#include "Map.h"
 #include <pthread.h>
 #include "SDL2/SDL.h"
 
@@ -13,6 +12,11 @@
 
 #ifndef GAME_H_
 #define GAME_H_
+
+class RenderThread;
+#include "RenderThread.h"
+class Map;
+#include "Map.h"
 
 class Game {
 public:
@@ -35,15 +39,8 @@ public:
 	void lock();
 	void unlock();
 
-	void waitForChange();
-	void signalChange();
-
-	const Map* getMap() const {
-		return &map;
-	}
-	void generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
-		map.generateMap(oceans, river, waterLevel);
-	}
+	Map* getMap();
+	void generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel);
 	int getSelectedStartX() const {
 		return selected[0];
 	}
@@ -70,11 +67,10 @@ public:
 	int getPosY() const {
 		return posY;
 	}
-	int getMaxPosX() {
-		return (map.maxY + map.maxX) / 2;
-	}
-	int getMaxPosY() {
-		return (map.maxY + map.maxX) / 2;
+	int getMaxPosX();
+	int getMaxPosY();
+	void setRenderThread(RenderThread* rt) {
+		this->rt = rt;
 	}
 
 
@@ -97,7 +93,7 @@ protected:
 	int		evolutionLevel;
 	unsigned int		speed;
 	GameDate	actualDate;
-	Map		map;
+	Map*		map;
 	int selected[4];
 	Sint32 mX, mY, oldMX, oldMY;
 	int posX;
@@ -105,7 +101,7 @@ protected:
 	int zoom;
 	int angle;
 	pthread_mutex_t mutex;
-	pthread_cond_t refresh;
+	RenderThread* rt;
 };
 
 #endif /* GAME_H_ */

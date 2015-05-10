@@ -12,6 +12,18 @@ class GameDate {
 public:
 	GameDate(int year = 0, int month = 1, int day = 1);
 	virtual ~GameDate();
+
+	void addDays(int days);
+
+	int getYear() {
+		return year;
+	}
+	int getMonth() {
+		return month;
+	}
+	int getDay() {
+		return day;
+	}
 protected:
 	int year;
 	int month;

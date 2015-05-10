@@ -8,31 +8,36 @@
 #ifndef RENDERTHREAD_H_
 #define RENDERTHREAD_H_
 
+class Game;
+class Menu;
+
 #include "Game.h"
+#include "Menu.h"
 #include "SDL2/SDL.h"
 
 class RenderThread {
 public:
 	~RenderThread();
-	static RenderThread* startThread(int screenWidth, int screenHeight, Game* game);
+	static RenderThread* startThread(int screenWidth, int screenHeight, Game* game, Menu* menu);
 	void changeToFullScreen() {
 		pthread_mutex_lock(&mutex);
 		changeFullscreen = true;
 		pthread_mutex_unlock(&mutex);
+		pthread_cond_signal(&refresh);
 	}
 
 	void changeToWindow() {
 		pthread_mutex_lock(&mutex);
 		changeWindow = true;
 		pthread_mutex_unlock(&mutex);
+		pthread_cond_signal(&refresh);
+	}
+	void signalChange() {
+		pthread_cond_signal(&refresh);
 	}
 private:
 	bool init();
-	bool loadMedia();
 	void close();
-	void render();
-	void renderMenu();
-	SDL_Rect isoTo2D(int x, int y);
 
 	bool quit;
 	bool changeFullscreen;
@@ -42,24 +47,13 @@ private:
 	const int SCREEN_WIDTH;
 	const int SCREEN_HEIGHT;
 	Game* game;
+	Menu* menu;
 	SDL_Thread* thread;
 	pthread_mutex_t mutex;
-
-	SDL_Texture* menuBackgroundTexture = NULL;
-	SDL_Texture* menuSettingsTexture = NULL;
-
-	SDL_Texture* groundTextures[4] = {NULL,NULL,NULL,NULL};
-
-	SDL_Texture* treesTextures[4] = {NULL,NULL,NULL,NULL};
-
-	SDL_Texture* stoneTextures[3] = {NULL,NULL,NULL};
-
-	SDL_Texture* goldTextures[3] = {NULL,NULL,NULL};
-
-	SDL_Texture* selectedTexture = NULL;
+	pthread_cond_t refresh;
 
 	static int threadMethod(void* param);
-	RenderThread(int screenWidth, int screenHeight, Game* game);
+	RenderThread(int screenWidth, int screenHeight, Game* game, Menu* menu);
 };
 
 #endif /* RENDERTHREAD_H_ */

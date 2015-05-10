@@ -10,15 +10,16 @@
 Game::Game(int x, int y):
 		evolutionLevel(0),
 		speed(0),
-		map(x, y),
+		map(NULL),
 		selected{-1, -1, -1, -1},
 		mX(0), mY(0), oldMX(0), oldMY(0),
 		posX(-16), posY(16),
 		zoom(16),
-		angle(0)
+		angle(0),
+		rt(NULL)
 {
 	pthread_mutex_init(&mutex, NULL);
-	pthread_cond_init(&refresh, NULL);
+	map = new Map(x, y);
 }
 
 Game::~Game() {
@@ -46,25 +47,25 @@ void Game::setMouseState(int mX, int mY) {
 
 		switch (angle) {
 		case 1: {
-			if (miX >= map.maxY) miX = map.maxY-1;
+			if (miX >= map->maxY) miX = map->maxY-1;
 			if (miX < 0) miX = 0;
-			if (miY >= map.maxX) miY = map.maxX-1;
+			if (miY >= map->maxX) miY = map->maxX-1;
 			if (miY < 0) miY = 0;
 			int tmp = miY;
-			miY = map.maxY - miX;
+			miY = map->maxY - miX;
 			miX = tmp;
 			break; }
 		case 2: {
-			miX = map.maxX - miX;
-			miY = map.maxY - miY;
+			miX = map->maxX - miX;
+			miY = map->maxY - miY;
 			break; }
 		case 3: {
-			if (miX >= map.maxY) miX = map.maxY-1;
+			if (miX >= map->maxY) miX = map->maxY-1;
 			if (miX < 0) miX = 0;
-			if (miY >= map.maxX) miY = map.maxX-1;
+			if (miY >= map->maxX) miY = map->maxX-1;
 			if (miY < 0) miY = 0;
 			int tmp = miX;
-			miX = map.maxX - miY;
+			miX = map->maxX - miY;
 			miY = tmp;
 			break; }
 		case 0:
@@ -72,8 +73,8 @@ void Game::setMouseState(int mX, int mY) {
 			break; }
 		}
 
-		if (miX >= map.maxX) miX = map.maxX-1;
-		if (miY >= map.maxY) miY = map.maxY-1;
+		if (miX >= map->maxX) miX = map->maxX-1;
+		if (miY >= map->maxY) miY = map->maxY-1;
 		if (miX < 0) miX = 0;
 		if (miY < 0) miY = 0;
 		selected[0] = miX;
@@ -116,8 +117,8 @@ void Game::startSelecting() {
 		lock();
 		if (selected[0] >= 0 &&
 			   selected[1] >= 0 &&
-			   selected[0] < map.maxX &&
-			   selected[1] < map.maxY) {
+			   selected[0] < map->maxX &&
+			   selected[1] < map->maxY) {
 		   selected[2] = selected[0];
 		   selected[3] = selected[1];
 		}
@@ -135,7 +136,7 @@ void Game::doneSelecting() {
 
 	   for (int iX = minX; iX <= maxX; iX++) {
 		   for (int iY = minY; iY <= maxY; iY++) {
-			   map.getFieldForChange(iX, iY)->reset();
+			   map->getFieldForChange(iX, iY)->reset();
 		   }
 	   }
 
@@ -161,14 +162,6 @@ void Game::lock() {
 void Game::unlock() {
 	pthread_mutex_unlock(&mutex);
 }
-void Game::waitForChange() {
-	lock();
-	pthread_cond_wait(&refresh, &mutex);
-	unlock();
-}
-void Game::signalChange() {
-	pthread_cond_signal(&refresh);
-}
 
 void Game::changeAngle(bool left) {
 	int tmp = posX;
@@ -189,4 +182,20 @@ void Game::changeAngle(bool left) {
 	}
 	correctPosX();
 	correctPosY();
+}
+
+Map* Game::getMap() {
+	return map;
+}
+
+void Game::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
+	map->generateMap(oceans, river, waterLevel);
+}
+
+int Game::getMaxPosX() {
+	return (map->maxY + map->maxX) / 2;
+}
+
+int Game::getMaxPosY() {
+	return (map->maxY + map->maxX) / 2;
 }

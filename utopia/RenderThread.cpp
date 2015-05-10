@@ -35,28 +35,8 @@ bool RenderThread::init() {
 }
 
 void RenderThread::close() {
-    for (int i = 0; i < 4; i++) {
-    	SDL_DestroyTexture(groundTextures[i]);
-    	groundTextures[i] = NULL;
-
-    	SDL_DestroyTexture(treesTextures[i]);
-    	treesTextures[i] = NULL;
-    }
-    for (int i = 0; i < 3; i++) {
-    	SDL_DestroyTexture(stoneTextures[i]);
-    	stoneTextures[i] = NULL;
-
-    	SDL_DestroyTexture(goldTextures[i]);
-    	goldTextures[i] = NULL;
-    }
-
-	SDL_DestroyTexture(selectedTexture);
-	selectedTexture = NULL;
-	SDL_DestroyTexture(menuBackgroundTexture);
-	menuBackgroundTexture = NULL;
-	SDL_DestroyTexture(menuSettingsTexture);
-	menuSettingsTexture = NULL;
-
+	game->getMap()->close();
+	menu->close();
 
 	SDL_DestroyRenderer(renderer);
 	renderer = NULL;
@@ -68,67 +48,8 @@ void RenderThread::close() {
 	}
 }
 
-bool RenderThread::loadMedia()
-{
-    //Loading success flag
-    bool success = true;
-
-    SDL_Surface* groundIMG[4] = {NULL, NULL, NULL, NULL};
-	SDL_Surface* treesIMG[4] = {NULL, NULL, NULL, NULL};
-	SDL_Surface* stoneIMG[3] = {NULL, NULL, NULL};
-	SDL_Surface* goldIMG[3] = {NULL, NULL, NULL};
-	SDL_Surface* selectedIMG = NULL;
-	SDL_Surface* menuIMGs = NULL;
-
-	groundIMG[0] = IMG_Load("./images/sand.png");
-    groundIMG[1] = IMG_Load("./images/gras.png");
-    groundIMG[2] = IMG_Load("./images/water0.png");
-    groundIMG[3] = IMG_Load("./images/water1.png");
-
-    treesIMG[0] = IMG_Load("./images/trees1.png");
-    treesIMG[1] = IMG_Load("./images/trees2.png");
-    treesIMG[2] = IMG_Load("./images/trees3.png");
-    treesIMG[3] = IMG_Load("./images/trees4.png");
-
-    stoneIMG[0] = IMG_Load("./images/stone1.png");
-    stoneIMG[1] = IMG_Load("./images/stone2.png");
-    stoneIMG[2] = IMG_Load("./images/stone3.png");
-
-    goldIMG[0] = IMG_Load("./images/gold1.png");
-    goldIMG[1] = IMG_Load("./images/gold2.png");
-    goldIMG[2] = IMG_Load("./images/gold3.png");
-
-
-    for (int i = 0; i < 4; i++) {
-    	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, groundIMG[i]);
-    	SDL_FreeSurface(groundIMG[i]);
-    	treesTextures[i] = SDL_CreateTextureFromSurface(renderer, treesIMG[i]);
-    	SDL_FreeSurface(treesIMG[i]);
-    }
-    for (int i = 0; i < 3; i++) {
-    	stoneTextures[i] = SDL_CreateTextureFromSurface(renderer, stoneIMG[i]);
-    	SDL_FreeSurface(stoneIMG[i]);
-    	goldTextures[i] = SDL_CreateTextureFromSurface(renderer, goldIMG[i]);
-    	SDL_FreeSurface(goldIMG[i]);
-    }
-
-    selectedIMG = IMG_Load("./images/selected.png");
-    selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
-	SDL_FreeSurface(selectedIMG);
-
-    menuIMGs = IMG_Load("./images/menu.png");
-    menuBackgroundTexture = SDL_CreateTextureFromSurface(renderer, menuIMGs);
-	SDL_FreeSurface(menuIMGs);
-    menuIMGs = IMG_Load("./images/menu-settings.png");
-    menuSettingsTexture = SDL_CreateTextureFromSurface(renderer, menuIMGs);
-	SDL_FreeSurface(menuIMGs);
-
-    return success;
-}
-
-
-RenderThread* RenderThread::startThread(int screenWidth, int screenHeight, Game* game) {
-	RenderThread* ret = new RenderThread(screenWidth, screenHeight, game);
+RenderThread* RenderThread::startThread(int screenWidth, int screenHeight, Game* game, Menu* menu) {
+	RenderThread* ret = new RenderThread(screenWidth, screenHeight, game, menu);
 	if (ret != NULL) {
 		ret->thread = SDL_CreateThread(RenderThread::threadMethod, "RenderThread", (void *)(ret));
 		if (ret->thread == NULL) {
@@ -145,7 +66,8 @@ int RenderThread::threadMethod(void* param) {
 //	std::cout << "start render" << std::endl;
 
 	t->init();
-	t->loadMedia();
+	t->game->getMap()->loadMedia(t->renderer);
+	t->menu->loadMedia(t->renderer);
 
 	pthread_mutex_lock(&(t->mutex));
 	do {
@@ -160,13 +82,13 @@ int RenderThread::threadMethod(void* param) {
 
 		SDL_RenderClear(t->renderer);
 //		std::cout << "render" << std::endl;
-		t->render();
-		t->renderMenu();
+		t->game->getMap()->renderMap(t->renderer, t->game, t->SCREEN_WIDTH, t->SCREEN_HEIGHT);
+		t->menu->renderMenu(t->renderer, t->SCREEN_HEIGHT);
 
 		SDL_RenderPresent(t->renderer);
 
-		t->game->waitForChange();
 		pthread_mutex_lock(&(t->mutex));
+		pthread_cond_wait(&(t->refresh), &(t->mutex));
 	} while(!t->quit); //while(f->testAndDecrease());
 	pthread_mutex_unlock(&(t->mutex));
 
@@ -175,7 +97,7 @@ int RenderThread::threadMethod(void* param) {
 	return 0;
 }
 
-RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game):
+RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game, Menu* menu):
 		quit(false),
 		changeFullscreen(false),
 		changeWindow(false),
@@ -183,135 +105,19 @@ RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game):
 		SCREEN_WIDTH(screenWidth),
 		SCREEN_HEIGHT(screenHeight),
 		game(game),
+		menu(menu),
 		thread(NULL)
 {
 	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&refresh, NULL);
 }
 
 RenderThread::~RenderThread() {
 	pthread_mutex_lock(&mutex);
 	quit = true;
 	pthread_mutex_unlock(&mutex);
-	game->signalChange();
+	signalChange();
 	SDL_WaitThread(thread, NULL);
 	thread = NULL;
 	close();
-}
-
-bool checkXY(int add, int xy, int xyMax) {
-	if (add > 0) {
-		return (xy < xyMax);
-	}
-	return (xy >= 0);
-}
-
-void RenderThread::render() {
-	int yStart = 0;
-	int xStart = game->getMap()->maxX-1;
-	int xAdd = -1;
-	int yAdd = 1;
-	if (game->getAngle() == 1) {
-		xStart = 0;
-		xAdd = 1;
-	} else if (game->getAngle() == 2) {
-		xStart = 0;
-		xAdd = 1;
-		yStart = game->getMap()->maxY-1;
-		yAdd = -1;
-	} else if (game->getAngle() == 3) {
-		yStart = game->getMap()->maxY-1;
-		yAdd = -1;
-	}
-
-	for (int y = yStart; checkXY(yAdd, y, game->getMap()->maxY); y += yAdd) {
-		for (int x = xStart; checkXY(xAdd, x, game->getMap()->maxX); x += xAdd) {
-			SDL_Rect dstrect = isoTo2D(x, y);
-			if (dstrect.x + dstrect.w > 0 && dstrect.y + dstrect.h > 0 &&
-				   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT)
-			{
-				game->lock();
-				const Field* field = game->getMap()->getField(x, y);
-				if (field->getType()) {
-					if (field->getMoist()) {
-						   SDL_RenderCopy(renderer, groundTextures[1], NULL, &dstrect);
-					} else {
-						   SDL_RenderCopy(renderer, groundTextures[0], NULL, &dstrect);
-					}
-					if (field->getStone() > 20) {
-						int num = (field->getStone() - 20) / 10;
-						if (num > 2) {
-							num = 2;
-						}
-						SDL_RenderCopy(renderer, stoneTextures[num], NULL, &dstrect);
-					}
-					if (field->getGold() > 20) {
-						int num = (field->getGold() - 20) / 10;
-						if (num > 2) {
-							num = 2;
-						}
-						SDL_RenderCopy(renderer, goldTextures[num], NULL, &dstrect);
-					}
-					if (field->getTrees() > 0) {
-						int num = field->getTrees() - 1;
-						if (num > 3) {
-							num = 3;
-						}
-						SDL_RenderCopy(renderer, treesTextures[num], NULL, &dstrect);
-					}
-				} else {
-					if (field->getMoist()) {
-						   SDL_RenderCopy(renderer, groundTextures[3], NULL, &dstrect);
-					} else {
-						   SDL_RenderCopy(renderer, groundTextures[2], NULL, &dstrect);
-					}
-				}
-			   if ((((x >= game->getSelectedStartX() && x <= game->getSelectedEndX()) ||
-							   (x <= game->getSelectedStartX() && x >= game->getSelectedEndX())) &&
-					   ((y >= game->getSelectedStartY() && y <= game->getSelectedEndY()) ||
-							   (y <= game->getSelectedStartY() && y >= game->getSelectedEndY())))) {
-				   SDL_Rect sdstrect = {dstrect.x, dstrect.y+(dstrect.h/2),
-						   (game->getZoom() * 4), (game->getZoom() * 2)};
-				   SDL_RenderCopy(renderer, selectedTexture, NULL, &sdstrect);
-			   }
-			   game->unlock();
-		   }
-	   }
-   }
-
-}
-
-void RenderThread::renderMenu() {
-	SDL_Rect dstrect = {0, 0, 100, SCREEN_HEIGHT};
-	SDL_RenderCopy(renderer, menuBackgroundTexture, NULL, &dstrect);
-
-	dstrect = {10, 10, 80, 50};
-	SDL_RenderCopy(renderer, menuSettingsTexture, NULL, &dstrect);
-}
-
-SDL_Rect RenderThread::isoTo2D(int x, int y) {
-
-	switch (game->getAngle()) {
-	case 1: {
-		int tmp = x;
-		x = game->getMap()->maxY - y;
-		y = tmp;
-		break; }
-	case 2: {
-		x = game->getMap()->maxX - x;
-		y = game->getMap()->maxY - y;
-		break; }
-	case 3: {
-		int tmp = y;
-		y = game->getMap()->maxX - x;
-		x = tmp;
-		break; }
-	case 0:
-	default: {
-		break; }
-	}
-
-	SDL_Rect dstrect = {0, 0, (game->getZoom() * 4), (game->getZoom() * 4) };
-	dstrect.x = (y + x - (game->getPosX() + game->getMaxPosX())) * 2 * game->getZoom() + 100;
-	dstrect.y = (y - x + game->getPosY()) * game->getZoom();
-	return dstrect;
 }

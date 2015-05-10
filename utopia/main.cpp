@@ -33,17 +33,19 @@ int main(int argc, char* argv[]) {
     Game game(fieldx, fieldy);
     game.generateMap(rand() % 16, rand() % 3, (rand() % 40) + 50);
 
-	RenderThread* renderThread = RenderThread::startThread(SCREEN_WIDTH, SCREEN_HEIGHT, &game);
+	Menu menu;
+
+	RenderThread* renderThread = RenderThread::startThread(SCREEN_WIDTH, SCREEN_HEIGHT, &game, &menu);
 	if (renderThread == NULL) {
 		return 0;
 	}
+	menu.setRenderThread(renderThread);
+	game.setRenderThread(renderThread);
 
 	if (FullScreen) {
 		renderThread->changeToFullScreen();
 	}
 	SoundThread* soundThread = SoundThread::startThread();
-
-	Menu menu;
 
 	while (!menu.quit)
 	{
@@ -141,7 +143,7 @@ int main(int argc, char* argv[]) {
 			   break;
 		   }
 	   }
-	   game.signalChange();
+	   renderThread->signalChange();
 	}
 	if (renderThread != NULL) {
 	   delete renderThread;

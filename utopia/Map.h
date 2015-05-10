@@ -11,6 +11,9 @@
 #include "Field.h"
 #include "SDL2/SDL_stdinc.h"
 
+class Game;
+#include "Game.h"
+
 class Map {
 public:
 	enum oceans_t {
@@ -37,11 +40,25 @@ public:
 	Field* getFieldForChange(int x, int y) {
 		return &(map[x][y]);
 	}
+	bool loadMedia(SDL_Renderer* renderer);
+	void renderMap(SDL_Renderer* renderer, Game* game, int SCREEN_WIDTH, int SCREEN_HEIGHT);
+	void close();
 
 	const int maxX;
 	const int maxY;
 
 private:
+	SDL_Texture* groundTextures[4] = {NULL,NULL,NULL,NULL};
+
+	SDL_Texture* treesTextures[4] = {NULL,NULL,NULL,NULL};
+
+	SDL_Texture* stoneTextures[3] = {NULL,NULL,NULL};
+
+	SDL_Texture* goldTextures[3] = {NULL,NULL,NULL};
+
+	SDL_Texture* selectedTexture = NULL;
+
+	SDL_Rect isoTo2D(int x, int y, Game* game);
 
 	Field** map;
 
