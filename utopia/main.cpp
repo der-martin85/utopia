@@ -7,6 +7,8 @@
 #include "RenderThread.h"
 #include "SoundThread.h"
 #include "Menu.h"
+#include <boost/filesystem.hpp>
+#include <fstream>
 
 //const int SCREEN_WIDTH = 1280;
 //const int SCREEN_HEIGHT = 800;
@@ -21,12 +23,24 @@ int main(int argc, char* argv[]) {
     int SCREEN_WIDTH = 1280;
     int SCREEN_HEIGHT = 800;
     bool FullScreen = false;
+    bool BackgroundMusic = true;
+	boost::filesystem::path configFile("./config.ini");
 
     if (argc == 3) {
     	SCREEN_WIDTH = atoi(argv[1]);
     	SCREEN_HEIGHT = atoi(argv[2]);
     	FullScreen = true;
+    } else {
+    	if (boost::filesystem::exists(configFile) &&
+    			boost::filesystem::is_regular_file(configFile))
+    	{
+    		std::ifstream cFile;
+    		cFile.open(configFile.c_str());
+    		cFile >> SCREEN_WIDTH >> SCREEN_HEIGHT >> FullScreen >> BackgroundMusic;
+    		cFile.close();
+    	}
     }
+
 
 	//Map f = Map(fieldx, fieldy);
 	//f.generateMap();
@@ -45,7 +59,7 @@ int main(int argc, char* argv[]) {
 	if (FullScreen) {
 		renderThread->changeToFullScreen();
 	}
-	SoundThread* soundThread = SoundThread::startThread();
+	SoundThread* soundThread = SoundThread::startThread(BackgroundMusic);
 
 	while (!menu.quit)
 	{
@@ -145,6 +159,15 @@ int main(int argc, char* argv[]) {
 	   }
 	   renderThread->signalChange();
 	}
+
+	std::ofstream cFile;
+	cFile.open(configFile.c_str());
+	cFile << renderThread->getScreenWidth() << std::endl;
+	cFile << renderThread->getScreenHeight() << std::endl;
+	cFile << renderThread->isFullscreen() << std::endl;
+	cFile << soundThread->backgroundMusicOn() << std::endl;
+	cFile.close();
+
 	if (renderThread != NULL) {
 	   delete renderThread;
 	}

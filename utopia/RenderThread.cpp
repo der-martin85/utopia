@@ -88,7 +88,10 @@ int RenderThread::threadMethod(void* param) {
 		SDL_RenderPresent(t->renderer);
 
 		pthread_mutex_lock(&(t->mutex));
-		pthread_cond_wait(&(t->refresh), &(t->mutex));
+		if (!t->change) {
+			pthread_cond_wait(&(t->refresh), &(t->mutex));
+			t->change = false;
+		}
 	} while(!t->quit); //while(f->testAndDecrease());
 	pthread_mutex_unlock(&(t->mutex));
 
@@ -101,21 +104,21 @@ RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game, Menu* 
 		quit(false),
 		changeFullscreen(false),
 		changeWindow(false),
+		FullScreen(false),
 		window(NULL), renderer(NULL),
 		SCREEN_WIDTH(screenWidth),
 		SCREEN_HEIGHT(screenHeight),
 		game(game),
 		menu(menu),
-		thread(NULL)
+		thread(NULL),
+		change(false)
 {
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&refresh, NULL);
 }
 
 RenderThread::~RenderThread() {
-	pthread_mutex_lock(&mutex);
 	quit = true;
-	pthread_mutex_unlock(&mutex);
 	signalChange();
 	SDL_WaitThread(thread, NULL);
 	thread = NULL;

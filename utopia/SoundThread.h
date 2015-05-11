@@ -16,14 +16,18 @@
 
 class SoundThread {
 public:
-	static SoundThread* startThread();
+	static SoundThread* startThread(bool BackgroundMusic);
 
 	~SoundThread();
 	void quitThread() {
 		quit = true;
 	}
+
+	bool backgroundMusicOn() {
+		return BackgroundMusic;
+	}
 private:
-	SoundThread();
+	SoundThread(bool BackgroundMusic);
 
 	static int threadMethod(void* param);
 
@@ -32,6 +36,7 @@ private:
 	pthread_cond_t condition;
 
 	bool quit;
+	bool BackgroundMusic;
 	std::vector<std::string>	musicFiles;
 	Mix_Music *music;
 

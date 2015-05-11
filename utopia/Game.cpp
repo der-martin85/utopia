@@ -36,6 +36,12 @@ void Game::setMouseState(int mX, int mY) {
 		if (mY < 50) {
 			changePosY(+1);
 		}
+		if (mX > (rt->getScreenWidth() - 50)) {
+			changePosX(+1);
+		}
+		if (mY > (rt->getScreenHeight() - 50)) {
+			changePosY(-1);
+		}
 	}
 
 	if (mX >= 100) {
