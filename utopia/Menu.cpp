@@ -10,19 +10,29 @@
 
 Menu::Menu():
 	quit(false),
-	mX(0), mY(0),
-	rt(NULL)
+	rt(NULL),
+	entry(NULL)
 {
+	entry = new MenuEntry("./images/menu-settings.png");
 }
 
 Menu::~Menu() {
+	delete entry;
 }
 
-void Menu::click() {
-	if (mX > 10 && mX < 90) {
-		if (mY > 10 && mY < 60) {
-			quit = true;
+bool Menu::click(int x, int y, Uint8 button) {
+	click_in clickon = entry->click(x, y,
+			MenuEntry::ENTRY_SPACEX, MenuEntry::ENTRY_SPACEY,
+			0, button);
+	if (clickon.top == -1) {
+		return false;
+	} else {
+		if (clickon.top == 0) {
+			if (button == SDL_BUTTON_LEFT) {
+				quit = true;
+			}
 		}
+		return true;
 	}
 }
 
@@ -30,23 +40,20 @@ void Menu::loadMedia(SDL_Renderer* renderer) {
 	SDL_Surface* menuIMGs = IMG_Load("./images/menu.png");
     menuBackgroundTexture = SDL_CreateTextureFromSurface(renderer, menuIMGs);
 	SDL_FreeSurface(menuIMGs);
-    menuIMGs = IMG_Load("./images/menu-settings.png");
-    menuSettingsTexture = SDL_CreateTextureFromSurface(renderer, menuIMGs);
-	SDL_FreeSurface(menuIMGs);
+
+	entry->loadImages(renderer);
 }
 
 void Menu::close() {
 	SDL_DestroyTexture(menuBackgroundTexture);
 	menuBackgroundTexture = NULL;
-	SDL_DestroyTexture(menuSettingsTexture);
-	menuSettingsTexture = NULL;
 
+	entry->close();
 }
 
 void Menu::renderMenu(SDL_Renderer* renderer, int SCREEN_HEIGHT) {
 	SDL_Rect dstrect = {0, 0, 100, SCREEN_HEIGHT};
 	SDL_RenderCopy(renderer, menuBackgroundTexture, NULL, &dstrect);
 
-	dstrect = {10, 10, 80, 50};
-	SDL_RenderCopy(renderer, menuSettingsTexture, NULL, &dstrect);
+	entry->renderMenu(renderer, MenuEntry::ENTRY_SPACEX, MenuEntry::ENTRY_SPACEY);
 }

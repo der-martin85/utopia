@@ -11,31 +11,28 @@
 class RenderThread;
 #include "RenderThread.h"
 #include "SDL2/SDL.h"
+#include "MenuEntry.h"
 
 class Menu {
 public:
 	Menu();
 	virtual ~Menu();
 
-	void setMouseState(int mX, int mY) {
-		this->mX = mX;
-		this->mY = mY;
-	}
 	void setRenderThread(RenderThread* rt) {
 		this->rt = rt;
 	}
-	void click();
+	bool click(int x, int y, Uint8 button);
 	void loadMedia(SDL_Renderer* renderer);
 	void close();
 	void renderMenu(SDL_Renderer* renderer, int SCREEN_HEIGHT);
 
 	bool quit;
 private:
-	int mX, mY;
 	RenderThread* rt;
 
 	SDL_Texture* menuBackgroundTexture = NULL;
-	SDL_Texture* menuSettingsTexture = NULL;
+
+	MenuEntry* entry;
 };
 
 #endif /* MENU_H_ */
