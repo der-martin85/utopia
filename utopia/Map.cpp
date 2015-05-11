@@ -25,6 +25,165 @@ Map::~Map() {
 	delete[] map;
 }
 
+bool Map::checkLimit(int a, int max) {
+	if (a >= 0 && a < max) {
+		return true;
+	}
+	return false;
+}
+
+void Map::generateCoast(oceans_t ocean, int waterLevel) {
+	int aStart = 0;
+	int bStart = 0;
+	int aMax, bMax;
+	int aAdd = 1;
+	int bAdd = 1;
+	int addOtherXa = 1;
+	int addOtherXb = -1;
+	int addOtherYa = -1;
+	int addOtherYb = -1;
+	if (ocean == OCEAN_NORTH) {
+		aMax = maxY;
+		bMax = maxX;
+	} else if (ocean == OCEAN_WEST) {
+		aMax = maxX;
+		bMax = maxY;
+		addOtherXa = -1;
+		addOtherYa = 1;
+	} else if (ocean == OCEAN_SOUTH) {
+		aStart = (maxY - 1);
+		aAdd = -1;
+		aMax = maxY;
+		bMax = maxX;
+		addOtherYa = 1;
+		addOtherYb = 1;
+	} else if (ocean == OCEAN_EAST) {
+		aStart = (maxX - 1);
+		aAdd = -1;
+		aMax = maxX;
+		bMax = maxY;
+		addOtherXb = 1;
+		addOtherYa = 1;
+	}
+	for (int a = aStart; checkLimit(a, aMax); a += aAdd) {
+		for (int b = bStart; checkLimit(b, bMax); b += bAdd) {
+			int x, y, ox, oy;
+			if (ocean == OCEAN_NORTH) {
+				x = b;
+				y = a;
+				ox = x;
+				oy = y - 1;
+			} else if (ocean == OCEAN_WEST) {
+				x = a;
+				y = b;
+				ox = x - 1;
+				oy = y;
+			} else if (ocean == OCEAN_SOUTH) {
+				x = b;
+				y = a;
+				ox = x;
+				oy = y + 1;
+			} else if (ocean == OCEAN_EAST) {
+				x = a;
+				y = b;
+				ox = x + 1;
+				oy = y;
+			}
+			if (a == aStart) {
+    			map[x][y].setType(false);
+    		} else if (!(map[ox][oy].getType())) {
+				int r = rand() % 100;
+				if ((b == (bMax - 1) || !(map[x+addOtherXa][y+addOtherYa].getType())) &&
+						((b == 0) || !(map[x+addOtherXb][y+addOtherYb].getType())))
+				{
+					if (r < waterLevel) {
+						map[x][y].setType(false);
+					}
+				} else {
+					if (r < waterLevel / 2) {
+						map[x][y].setType(false);
+					}
+				}
+    		}
+    	}
+    }
+}
+
+void Map::generateRiver(river_t river, int waterLevel) {
+	int aMax = maxY;
+	int bMax = maxX;
+	if (river == RIVER_NORTHSOUTH) {
+		aMax = maxX;
+		bMax = maxY;
+	}
+
+	int middle = (rand() %( bMax/3)) + (rand() %( bMax/3)) + (rand() %( bMax/3));
+	int oldspana, oldspanb;
+	for (int a = 0; a < aMax; a++) {
+		int x, y;
+		if (river == RIVER_EASTWEST) {
+			y = a;
+		} else {
+			x = a;
+		}
+		int spana = 1;
+		for (int i = 0; i < 4; i++ ) {
+			spana += (rand() % ((bMax*waterLevel)/2400));
+		}
+		int spanb = 1;
+		for (int i = 0; i < 4; i++ ) {
+			spanb += (rand() % ((bMax*waterLevel)/2400));
+		}
+		if (a == 0) {
+			for (int add = 1; add > -2; add -= 2) {
+				for (int b = middle; checkLimit(b, bMax) && b < (middle + spana) && b >= (middle - spanb); b += add) {
+					if (river == RIVER_EASTWEST) {
+						x = b;
+					} else {
+						y = b;
+					}
+					map[x][y].setType(false);
+				}
+			}
+		} else {
+			spana = (spana + oldspana) / 2;
+			spanb = (spanb + oldspanb) / 2;
+			for (int add = 1; add > -2; add -= 2) {
+				for (int b = middle; checkLimit(b, bMax) && b < (middle + spana) && b >= (middle - spanb); b += add) {
+					int xa, ya;
+					int xb, yb;
+					if (river == RIVER_EASTWEST) {
+						x = b;
+						xa = x;
+						ya = y - 1;
+						xb = x - add;
+						yb = y;
+					} else {
+						y = b;
+						xa = x - 1;
+						ya = y;
+						xb = x;
+						yb = y - add;
+					}
+					if (!(map[xa][ya].getType()) || !checkLimit(b - add, bMax) || !(map[xb][yb].getType())) {
+						map[x][y].setType(false);
+					} else {
+						int r = rand() % 100;
+						if (r < waterLevel) {
+							map[x][y].setType(false);
+						}
+					}
+				}
+			}
+		}
+		oldspana = middle;
+		oldspanb = middle;
+		middle = middle + ((spana - spanb) / 2);
+		oldspana = middle - oldspana + spana;
+		oldspanb = middle - oldspanb + spanb;
+	}
+}
+
 void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
     time_t t;
     time(&t);
@@ -39,194 +198,24 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
     // TODO: Work on Code duplication!
     // Create Coasts
 	if (oceans & OCEAN_NORTH) {
-    	for (int y = 0; y < maxY; y++) {
-    		for (int x = 0; x < maxX; x++) {
-	    		if (y == 0) {
-	    			map[x][y].setType(false);
-	    		} else if (!(map[x][y-1].getType())) {
-					int r = rand() % 100;
-					if ((x == (maxX - 1) || !(map[x+1][y-1].getType())) &&
-							((x == 0) || !(map[x-1][y-1].getType())))
-					{
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-					} else {
-						if (r < waterLevel / 2) {
-							map[x][y].setType(false);
-						}
-					}
-	    		}
-	    	}
-	    }
+		generateCoast(OCEAN_NORTH, waterLevel);
 	}
 	if (oceans & OCEAN_WEST) {
-	    for (int x = 0; x < maxX; x++) {
-	    	for (int y = 0; y < maxY; y++) {
-	    		if (x == 0) {
-	    			map[x][y].setType(false);
-	    		} else if (!(map[x-1][y].getType())) {
-					int r = rand() % 100;
-					if ((y == (maxY - 1) || !(map[x-1][y+1].getType())) &&
-							((y == 0) || !(map[x-1][y-1].getType())))
-					{
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-					} else {
-						if (r < waterLevel / 2) {
-							map[x][y].setType(false);
-						}
-					}
-	    		}
-	    	}
-	    }
+		generateCoast(OCEAN_WEST, waterLevel);
 	}
 	if (oceans & OCEAN_SOUTH) {
-		for (int y = (maxY - 1); y >= 0; y--) {
-			for (int x = 0; x < maxX; x++) {
-	    		if (y == (maxY - 1)) {
-	    			map[x][y].setType(false);
-	    		} else if (!(map[x][y+1].getType())) {
-					int r = rand() % 100;
-					if ((x == (maxX - 1) || !(map[x+1][y+1].getType())) &&
-							((x == 0) || !(map[x-1][y+1].getType())))
-					{
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-					} else {
-						if (r < waterLevel / 2) {
-							map[x][y].setType(false);
-						}
-					}
-	    		}
-	    	}
-	    }
+		generateCoast(OCEAN_SOUTH, waterLevel);
 	}
 	if (oceans & OCEAN_EAST) {
-	    for (int x = (maxX - 1); x >= 0; x--) {
-	    	for (int y = 0; y < maxY; y++) {
-	    		if (x == (maxX - 1)) {
-	    			map[x][y].setType(false);
-	    		} else if (!(map[x+1][y].getType())) {
-					int r = rand() % 100;
-					if ((y == (maxY - 1) || !(map[x+1][y+1].getType())) &&
-							((y == 0) || !(map[x+1][y-1].getType())))
-					{
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-					} else {
-						if (r < waterLevel / 2) {
-							map[x][y].setType(false);
-						}
-					}
-	    		}
-	    	}
-	    }
+		generateCoast(OCEAN_EAST, waterLevel);
 	}
 
 	// Create River
 
     if (river == RIVER_EASTWEST) {
-    	int middle = (rand() %( maxX/3)) + (rand() %( maxX/3)) + (rand() %( maxX/3));
-    	int oldspana, oldspanb;
-    	for (int y = 0; y < maxY; y++) {
-			int spana = 1;
-			for (int i = 0; i < 4; i++ ) {
-				spana += (rand() % ((maxX*waterLevel)/2400));
-			}
-			int spanb = 1;
-			for (int i = 0; i < 4; i++ ) {
-				spanb += (rand() % ((maxX*waterLevel)/2400));
-			}
-    		if (y == 0) {
-    			for (int x = middle; x < maxX && x < (middle + spana); x++) {
-        			map[x][y].setType(false);
-    			}
-    			for (int x = middle; x >= 0 && x >= (middle - spanb); x--) {
-        			map[x][y].setType(false);
-    			}
-    		} else {
-    			spana = (spana + oldspana) / 2;
-    			spanb = (spanb + oldspanb) / 2;
-    			for (int x = middle; x < maxX && x < (middle + spana); x++) {
-    				if (!(map[x][y-1].getType()) || x == 0 || !(map[x-1][y].getType())) {
-    					map[x][y].setType(false);
-    				} else {
-    					int r = rand() % 100;
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-    				}
-    			}
-    			for (int x = middle; x >= 0 && x >= (middle - spanb); x--) {
-    				if (!(map[x][y-1].getType()) || x == (maxX - 1) || !(map[x+1][y].getType())) {
-    					map[x][y].setType(false);
-    				} else {
-    					int r = rand() % 100;
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-    				}
-    			}
-    		}
-    		oldspana = middle;
-    		oldspanb = middle;
-    		middle = middle + ((spana - spanb) / 2);
-    		oldspana = middle - oldspana + spana;
-    		oldspanb = middle - oldspanb + spanb;
-    	}
+    	generateRiver(RIVER_EASTWEST, waterLevel);
     } else if (river == RIVER_NORTHSOUTH) {
-    	int middle = (rand() %( maxX/3)) + (rand() %( maxX/3)) + (rand() %( maxX/3));
-    	int oldspana, oldspanb;
-    	for (int x = 0; x < maxX; x++) {
-			int spana = 1;
-			for (int i = 0; i < 4; i++ ) {
-				spana += (rand() % ((maxX*waterLevel)/2400));
-			}
-			int spanb = 1;
-			for (int i = 0; i < 4; i++ ) {
-				spanb += (rand() % ((maxX*waterLevel)/2400));
-			}
-    		if (x == 0) {
-    			for (int y = middle; y < maxY && y < (middle + spana); y++) {
-        			map[x][y].setType(false);
-    			}
-    			for (int y = middle; y >= 0 && y >= (middle - spanb); y--) {
-        			map[x][y].setType(false);
-    			}
-    		} else {
-    			spana = (spana + oldspana) / 2;
-    			spanb = (spanb + oldspanb) / 2;
-    			for (int y = middle; y < maxY && y < (middle + spana); y++) {
-    				if (!(map[x-1][y].getType()) || y == 0 || !(map[x][y-1].getType())) {
-    					map[x][y].setType(false);
-    				} else {
-    					int r = rand() % 100;
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-    				}
-    			}
-    			for (int y = middle; y >= 0 && y >= (middle - spanb); y--) {
-    				if (!(map[x-1][y].getType()) || y == (maxY - 1) || !(map[x][y+1].getType())) {
-    					map[x][y].setType(false);
-    				} else {
-    					int r = rand() % 100;
-						if (r < waterLevel) {
-							map[x][y].setType(false);
-						}
-    				}
-    			}
-    		}
-    		oldspana = middle;
-    		oldspanb = middle;
-    		middle = middle + ((spana - spanb) / 2);
-    		oldspana = middle - oldspana + spana;
-    		oldspanb = middle - oldspanb + spanb;
-    	}
+    	generateRiver(RIVER_NORTHSOUTH, waterLevel);
     }
 
     // Create Lakes
@@ -250,22 +239,7 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
         }
     }
 
-    // Create deep Water
-    for (int x = 0; x < maxX; x++) {
-    	for (int y = 0; y < maxY; y++) {
-    		if (!(map[x][y].getType())) {
-    			if (	(x == 0 || !(map[x-1][y].getType())) &&
-    					(y == 0 || !(map[x][y-1].getType())) &&
-						(x == (maxX - 1) || !(map[x+1][y].getType())) &&
-						(y == (maxY - 1) || !(map[x][y+1].getType())))
-    			{
-    				map[x][y].setMoist(true);
-    			}
-    		}
-    	}
-    }
-
-    // Create Meadows, Trees, Forests and Sand Dunes
+    // Create deep Water, Meadows, Trees, Forests and Sand Dunes
     for (int x = 0; x < maxX; x++) {
     	for (int y = 0; y < maxY; y++) {
         	if (((rand() % 100) < 5)) {
@@ -292,8 +266,15 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
 
         	}
 
-
-        	if (map[x][y].getType()) {
+    		if (!(map[x][y].getType())) {
+    			if (	(x == 0 || !(map[x-1][y].getType())) &&
+    					(y == 0 || !(map[x][y-1].getType())) &&
+						(x == (maxX - 1) || !(map[x+1][y].getType())) &&
+						(y == (maxY - 1) || !(map[x][y+1].getType())))
+    			{
+    				map[x][y].setMoist(true);
+    			}
+    		} else {
         		if (	(x == 0 || !map[x-1][y].getType() || (map[x-1][y].getType() && map[x-1][y].getMoist())) ||
         				(y == 0 || !map[x][y-1].getType() || (map[x][y-1].getType() && map[x][y-1].getMoist()))) {
         			map[x][y].setMoist((rand() % 10) < 9);
@@ -311,7 +292,8 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
                 		map[x][y].setTrees((rand() % 4) + 1);
                 	}
         		}
-        	}
+
+    		}
     	}
     }
 
