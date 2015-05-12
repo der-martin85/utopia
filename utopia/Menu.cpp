@@ -13,7 +13,11 @@ Menu::Menu():
 	rt(NULL),
 	entry(NULL)
 {
-	entry = new MenuEntry("./images/menu-settings.png");
+	MenuEntry* tmp = new MenuEntry("./images/menu-landscape.png");
+	entry = tmp;
+	tmp = new MenuEntry("./images/menu-settings.png");
+	tmp->addSubentry("./images/menu-quit.png");
+	entry->addEntry(tmp);
 }
 
 Menu::~Menu() {
@@ -27,8 +31,8 @@ bool Menu::click(int x, int y, Uint8 button) {
 	if (clickon.top == -1) {
 		return false;
 	} else {
-		if (clickon.top == 0) {
-			if (button == SDL_BUTTON_LEFT) {
+		if (button == SDL_BUTTON_LEFT) {
+			if (clickon.top == 1 && clickon.sub == 0) {
 				quit = true;
 			}
 		}

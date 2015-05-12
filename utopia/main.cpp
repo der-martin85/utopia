@@ -68,8 +68,6 @@ int main(int argc, char* argv[]) {
 	   int mX, mY;
 	   SDL_GetMouseState(&mX, &mY);
 
-	   game.setMouseState(mX, mY);
-
 	   switch(event.type)
 	   {
 	   case SDL_QUIT:
@@ -86,15 +84,13 @@ int main(int argc, char* argv[]) {
 	   case SDL_MOUSEBUTTONDOWN:
 		   {
 			   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
-			   if (mbe->button == SDL_BUTTON_LEFT) {
-				   if (!menu.click(mX, mY, mbe->button)) {
-					   if (mbe->button == SDL_BUTTON_RIGHT) {
-						   game.startDragging();
-					   }
-					   if (mbe->button == SDL_BUTTON_LEFT) {
-						   // Feld markieren
-						   game.startSelecting();
-					   }
+			   if (!menu.click(mX, mY, mbe->button)) {
+				   if (mbe->button == SDL_BUTTON_RIGHT) {
+					   game.startDragging();
+				   }
+				   if (mbe->button == SDL_BUTTON_LEFT) {
+					   // Feld markieren
+					   game.startSelecting();
 				   }
 			   }
 			   break;
@@ -112,6 +108,9 @@ int main(int argc, char* argv[]) {
 			   }
 			   break;
 		   }
+	   case SDL_MOUSEMOTION:
+		   game.setMouseState(mX, mY);
+		   break;
 	   case SDL_KEYDOWN:
 		   {
 			   const Uint8 *state = SDL_GetKeyboardState(NULL);

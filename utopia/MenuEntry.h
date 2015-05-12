@@ -16,6 +16,25 @@ struct click_in {
 	int sub;
 };
 
+class SubMenuEntry {
+public:
+	SubMenuEntry(std::string imageFile);
+	virtual ~SubMenuEntry();
+
+	void loadImages(SDL_Renderer* renderer);
+	void renderMenu(SDL_Renderer* renderer, int x, int y);
+	void close();
+
+	void addEntry(std::string imgFile);
+
+	int click(int x, int y, int startx, int starty, int num, Uint8 button);
+private:
+	std::string		imageFile;
+	SDL_Texture*	texture;
+
+	SubMenuEntry*	nextEntry;
+};
+
 class MenuEntry {
 public:
 	static const int ENTRY_HEIGHT	= 50;
@@ -30,7 +49,7 @@ public:
 	void renderMenu(SDL_Renderer* renderer, int x, int y);
 	void close();
 
-	void addEntry(std::string imgFile);
+	void addEntry(MenuEntry* entry);
 	void addSubentry(std::string imgFile);
 
 	click_in click(int x, int y, int startx, int starty, int num, Uint8 button);
@@ -41,7 +60,7 @@ private:
 	bool			showSubmenu;
 
 	MenuEntry*		nextEntry;
-	MenuEntry*		submenu;
+	SubMenuEntry*	submenu;
 };
 
 #endif /* MENUENTRY_H_ */
