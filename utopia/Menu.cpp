@@ -13,10 +13,10 @@ Menu::Menu():
 	rt(NULL),
 	entry(NULL)
 {
-	MenuEntry* tmp = new MenuEntry("./images/menu-landscape.png");
+	MenuEntry* tmp = new MenuEntry("./images/menu/landscape.png");
 	entry = tmp;
-	tmp = new MenuEntry("./images/menu-settings.png");
-	tmp->addSubentry("./images/menu-quit.png");
+	tmp = new MenuEntry("./images/menu/settings.png");
+	tmp->addSubentry("./images/menu/quit.png");
 	entry->addEntry(tmp);
 }
 
@@ -41,7 +41,7 @@ bool Menu::click(int x, int y, Uint8 button) {
 }
 
 void Menu::loadMedia(SDL_Renderer* renderer) {
-	SDL_Surface* menuIMGs = IMG_Load("./images/menu.png");
+	SDL_Surface* menuIMGs = IMG_Load("./images/menu/menu.png");
     menuBackgroundTexture = SDL_CreateTextureFromSurface(renderer, menuIMGs);
 	SDL_FreeSurface(menuIMGs);
 

@@ -310,23 +310,23 @@ bool Map::loadMedia(SDL_Renderer* renderer)
 	SDL_Surface* goldIMG[3] = {NULL, NULL, NULL};
 	SDL_Surface* selectedIMG = NULL;
 
-	groundIMG[0] = IMG_Load("./images/sand.png");
-    groundIMG[1] = IMG_Load("./images/gras.png");
-    groundIMG[2] = IMG_Load("./images/water0.png");
-    groundIMG[3] = IMG_Load("./images/water1.png");
+	groundIMG[0] = IMG_Load("./images/landscape/sand.png");
+    groundIMG[1] = IMG_Load("./images/landscape/gras.png");
+    groundIMG[2] = IMG_Load("./images/landscape/water0.png");
+    groundIMG[3] = IMG_Load("./images/landscape/water1.png");
 
-    treesIMG[0] = IMG_Load("./images/trees1.png");
-    treesIMG[1] = IMG_Load("./images/trees2.png");
-    treesIMG[2] = IMG_Load("./images/trees3.png");
-    treesIMG[3] = IMG_Load("./images/trees4.png");
+    treesIMG[0] = IMG_Load("./images/landscape/trees1.png");
+    treesIMG[1] = IMG_Load("./images/landscape/trees2.png");
+    treesIMG[2] = IMG_Load("./images/landscape/trees3.png");
+    treesIMG[3] = IMG_Load("./images/landscape/trees4.png");
 
-    stoneIMG[0] = IMG_Load("./images/stone1.png");
-    stoneIMG[1] = IMG_Load("./images/stone2.png");
-    stoneIMG[2] = IMG_Load("./images/stone3.png");
+    stoneIMG[0] = IMG_Load("./images/landscape/stone1.png");
+    stoneIMG[1] = IMG_Load("./images/landscape/stone2.png");
+    stoneIMG[2] = IMG_Load("./images/landscape/stone3.png");
 
-    goldIMG[0] = IMG_Load("./images/gold1.png");
-    goldIMG[1] = IMG_Load("./images/gold2.png");
-    goldIMG[2] = IMG_Load("./images/gold3.png");
+    goldIMG[0] = IMG_Load("./images/landscape/gold1.png");
+    goldIMG[1] = IMG_Load("./images/landscape/gold2.png");
+    goldIMG[2] = IMG_Load("./images/landscape/gold3.png");
 
 
     for (int i = 0; i < 4; i++) {

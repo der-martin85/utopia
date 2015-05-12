@@ -16,6 +16,7 @@ Game::Game(int x, int y):
 		posX(-16), posY(16),
 		zoom(16),
 		angle(0),
+		buttonDown(false),
 		rt(NULL)
 {
 	pthread_mutex_init(&mutex, NULL);
@@ -29,7 +30,7 @@ void Game::setMouseState(int mX, int mY) {
 	this->mX = mX;
 	this->mY = mY;
 
-	if (selected[2] != -1) {
+	if (buttonDown) {
 		if (mX < 150) {
 			changePosX(-1);
 		}
@@ -121,6 +122,7 @@ void Game::changePosY(int change) {
 void Game::startSelecting() {
 	if (mX >= 100) {
 		lock();
+		buttonDown = true;
 		if (selected[0] >= 0 &&
 			   selected[1] >= 0 &&
 			   selected[0] < map->maxX &&
@@ -134,6 +136,7 @@ void Game::startSelecting() {
 
 void Game::doneSelecting() {
 	lock();
+	buttonDown = false;
 	if (selected[2] > -1) {
 	   const int minX = selected[0] > selected[2] ? selected[2] : selected[0];
 	   const int minY = selected[1] > selected[3] ? selected[3] : selected[1];

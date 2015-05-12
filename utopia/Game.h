@@ -100,6 +100,12 @@ protected:
 	int posY;
 	int zoom;
 	int angle;
+
+	bool buttonDown;
+
+	bool selectable;
+	int selectionXSize, selectionYSize;
+
 	pthread_mutex_t mutex;
 	RenderThread* rt;
 };
