@@ -10,6 +10,8 @@
 Field::Field():
 	land(true),
 	moist(false),
+	resource(NULL),
+	building(NULL),
 	trees(0),
 	stone(0),
 	gold(0),

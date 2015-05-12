@@ -8,6 +8,9 @@
 #ifndef FIELD_H_
 #define FIELD_H_
 
+#include "buildings/Building.h"
+#include "resources/Resource.h"
+
 class Field {
 public:
 	Field();
@@ -37,6 +40,9 @@ public:
 private:
 	bool land;
 	bool moist;			// Used to determine deep water or moist ground
+
+	Resource*	resource;
+	Building*	building;
 	unsigned int trees;
 	unsigned int stone;
 	unsigned int gold;
