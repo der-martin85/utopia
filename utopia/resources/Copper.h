@@ -14,7 +14,7 @@ class Copper: public Resource {
 public:
 	static const ResourceType_t TYPE = 5;
 
-	Copper();
+	Copper(unsigned int copper);
 	virtual ~Copper();
 
 	ResourceType_t getResourceType() {
@@ -28,6 +28,10 @@ public:
 	void setCopper(unsigned int copper) {
 		this->copper = copper;
 	}
+
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
 
 private:
 	unsigned int copper;

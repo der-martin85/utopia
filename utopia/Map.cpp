@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "SDL2/SDL_image.h"
+#include "resources/Tree.h"
 
 Map::Map(int x, int y):
 		maxX(x), maxY(y)
@@ -289,7 +290,7 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
 						map[x][y].getCoal() < 20 &&
 						map[x][y].getOil() < 20) {
                 	if (((rand() % 10) < 6)) {
-                		map[x][y].setTrees((rand() % 4) + 1);
+                		map[x][y].setTrees((rand() % Tree::MAX_NUM_TREES) + 1);
                 	}
         		}
 
@@ -304,69 +305,22 @@ bool Map::loadMedia(SDL_Renderer* renderer)
     //Loading success flag
     bool success = true;
 
-    SDL_Surface* groundIMG[4] = {NULL, NULL, NULL, NULL};
-	SDL_Surface* treesIMG[4] = {NULL, NULL, NULL, NULL};
-	SDL_Surface* stoneIMG[3] = {NULL, NULL, NULL};
-	SDL_Surface* goldIMG[3] = {NULL, NULL, NULL};
 	SDL_Surface* selectedIMG = NULL;
-
-	groundIMG[0] = IMG_Load("./images/landscape/sand.png");
-    groundIMG[1] = IMG_Load("./images/landscape/gras.png");
-    groundIMG[2] = IMG_Load("./images/landscape/water0.png");
-    groundIMG[3] = IMG_Load("./images/landscape/water1.png");
-
-    treesIMG[0] = IMG_Load("./images/landscape/trees1.png");
-    treesIMG[1] = IMG_Load("./images/landscape/trees2.png");
-    treesIMG[2] = IMG_Load("./images/landscape/trees3.png");
-    treesIMG[3] = IMG_Load("./images/landscape/trees4.png");
-
-    stoneIMG[0] = IMG_Load("./images/landscape/stone1.png");
-    stoneIMG[1] = IMG_Load("./images/landscape/stone2.png");
-    stoneIMG[2] = IMG_Load("./images/landscape/stone3.png");
-
-    goldIMG[0] = IMG_Load("./images/landscape/gold1.png");
-    goldIMG[1] = IMG_Load("./images/landscape/gold2.png");
-    goldIMG[2] = IMG_Load("./images/landscape/gold3.png");
-
-
-    for (int i = 0; i < 4; i++) {
-    	groundTextures[i] = SDL_CreateTextureFromSurface(renderer, groundIMG[i]);
-    	SDL_FreeSurface(groundIMG[i]);
-    	treesTextures[i] = SDL_CreateTextureFromSurface(renderer, treesIMG[i]);
-    	SDL_FreeSurface(treesIMG[i]);
-    }
-    for (int i = 0; i < 3; i++) {
-    	stoneTextures[i] = SDL_CreateTextureFromSurface(renderer, stoneIMG[i]);
-    	SDL_FreeSurface(stoneIMG[i]);
-    	goldTextures[i] = SDL_CreateTextureFromSurface(renderer, goldIMG[i]);
-    	SDL_FreeSurface(goldIMG[i]);
-    }
 
     selectedIMG = IMG_Load("./images/selected.png");
     selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
 	SDL_FreeSurface(selectedIMG);
 
+	success = Field::loadMedia(renderer);
+
     return success;
 }
 
 void Map::close() {
-    for (int i = 0; i < 4; i++) {
-    	SDL_DestroyTexture(groundTextures[i]);
-    	groundTextures[i] = NULL;
-
-    	SDL_DestroyTexture(treesTextures[i]);
-    	treesTextures[i] = NULL;
-    }
-    for (int i = 0; i < 3; i++) {
-    	SDL_DestroyTexture(stoneTextures[i]);
-    	stoneTextures[i] = NULL;
-
-    	SDL_DestroyTexture(goldTextures[i]);
-    	goldTextures[i] = NULL;
-    }
-
 	SDL_DestroyTexture(selectedTexture);
 	selectedTexture = NULL;
+
+	Field::close();
 }
 
 bool checkXY(int add, int xy, int xyMax) {
@@ -401,40 +355,7 @@ void Map::renderMap(SDL_Renderer* renderer, Game* game, int SCREEN_WIDTH, int SC
 				   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT)
 			{
 				const Field* field = game->getMap()->getField(x, y);
-				if (field->getType()) {
-					if (field->getMoist()) {
-						   SDL_RenderCopy(renderer, groundTextures[1], NULL, &dstrect);
-					} else {
-						   SDL_RenderCopy(renderer, groundTextures[0], NULL, &dstrect);
-					}
-					if (field->getStone() > 20) {
-						int num = (field->getStone() - 20) / 10;
-						if (num > 2) {
-							num = 2;
-						}
-						SDL_RenderCopy(renderer, stoneTextures[num], NULL, &dstrect);
-					}
-					if (field->getGold() > 20) {
-						int num = (field->getGold() - 20) / 10;
-						if (num > 2) {
-							num = 2;
-						}
-						SDL_RenderCopy(renderer, goldTextures[num], NULL, &dstrect);
-					}
-					if (field->getTrees() > 0) {
-						int num = field->getTrees() - 1;
-						if (num > 3) {
-							num = 3;
-						}
-						SDL_RenderCopy(renderer, treesTextures[num], NULL, &dstrect);
-					}
-				} else {
-					if (field->getMoist()) {
-						   SDL_RenderCopy(renderer, groundTextures[3], NULL, &dstrect);
-					} else {
-						   SDL_RenderCopy(renderer, groundTextures[2], NULL, &dstrect);
-					}
-				}
+				field->renderField(renderer, dstrect, game->getZoom());
 			   if ((((x >= game->getSelectedStartX() && x <= game->getSelectedEndX()) ||
 							   (x <= game->getSelectedStartX() && x >= game->getSelectedEndX())) &&
 					   ((y >= game->getSelectedStartY() && y <= game->getSelectedEndY()) ||

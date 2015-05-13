@@ -8,7 +8,7 @@
 #include "Coal.h"
 
 Coal::Coal(unsigned int coal):
-	coal(coal)
+	Resource::Resource(coal)
 {
 	// TODO Auto-generated constructor stub
 }
@@ -17,8 +17,11 @@ Coal::~Coal() {
 	// TODO Auto-generated destructor stub
 }
 
-void Coal::loadMedia(SDL_Renderer* renderer) {
+bool Coal::loadMedia(SDL_Renderer* renderer) {
+	bool success = true;
+	SDL_Surface* tmp = NULL;
 
+    return success;
 }
 
 void Coal::close() {

@@ -13,14 +13,24 @@ typedef int ResourceType_t;
 
 class Resource {
 public:
-	Resource() {}
+	Resource(unsigned int amount): amount(amount), texture(NULL) {}
 	virtual ~Resource() {}
 
-	virtual void loadMedia(SDL_Renderer* renderer) = 0;
-	virtual void close() = 0;
-	virtual void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect) = 0;
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect) const {
+		if (texture != NULL && *texture != NULL) {
+			SDL_RenderCopy(renderer, *texture, NULL, &rect);
+		}
+	}
+	virtual void setAmount(unsigned int amount) = 0;
+	unsigned int getAmount() const {
+		return amount;
+	}
 
 	virtual ResourceType_t getResourceType() = 0;
+
+protected:
+	unsigned int amount;
+	SDL_Texture** texture;
 };
 
 #endif /* RESOURCE_H_ */

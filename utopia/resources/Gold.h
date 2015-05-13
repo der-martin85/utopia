@@ -14,23 +14,22 @@ class Gold: public Resource {
 public:
 	static const ResourceType_t TYPE = 3;
 
-	Gold();
+	Gold(unsigned int gold);
 	virtual ~Gold();
 
 	ResourceType_t getResourceType() {
 		return TYPE;
 	}
 
-	unsigned int getGold() const {
-		return gold;
+	void setAmount(unsigned int gold) {
+		this->amount = gold;
 	}
 
-	void setGold(unsigned int gold) {
-		this->gold = gold;
-	}
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
 
 private:
-	unsigned int gold;
 };
 
 #endif /* RESOURCES_GOLD_H_ */

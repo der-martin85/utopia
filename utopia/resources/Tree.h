@@ -13,24 +13,43 @@
 class Tree: public Resource {
 public:
 	static const ResourceType_t TYPE = 1;
+	static const int MAX_NUM_TREES = 9;
 
-	Tree();
+	Tree(unsigned int numTrees);
 	virtual ~Tree();
 
 	ResourceType_t getResourceType() {
 		return TYPE;
 	}
 
-	unsigned int getTrees() const {
-		return trees;
+	void setAmount(unsigned int trees) {
+		switch(kind) {
+		case BROADLEAF:
+			texture = &(broadleaf[trees]);
+			break;
+		case CONIFER:
+			texture = &(conifer[trees]);
+			break;
+		case MIXED:
+			texture = &(mixed[trees]);
+			break;
+		}
+		this->amount = trees;
 	}
 
-	void setTrees(unsigned int trees) {
-		this->trees = trees;
-	}
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
 
 private:
-	unsigned int trees;
+	enum forestKind {
+		BROADLEAF,
+		CONIFER,
+		MIXED
+	} kind;
+
+	static SDL_Texture* broadleaf[MAX_NUM_TREES];
+	static SDL_Texture* conifer[MAX_NUM_TREES];
+	static SDL_Texture* mixed[MAX_NUM_TREES];
 };
 
 #endif /* RESOURCES_TREE_H_ */

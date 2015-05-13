@@ -14,23 +14,22 @@ class Iron: public Resource {
 public:
 	static const ResourceType_t TYPE = 4;
 
-	Iron();
+	Iron(unsigned int iron);
 	virtual ~Iron();
 
 	ResourceType_t getResourceType() {
 		return TYPE;
 	}
 
-	unsigned int getIron() const {
-		return iron;
+	void setAmount(unsigned int iron) {
+		this->amount = iron;
 	}
 
-	void setIron(unsigned int iron) {
-		this->iron = iron;
-	}
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
 
 private:
-	unsigned int iron;
 };
 
 #endif /* RESOURCES_IRON_H_ */

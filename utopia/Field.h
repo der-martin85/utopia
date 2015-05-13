@@ -8,6 +8,7 @@
 #ifndef FIELD_H_
 #define FIELD_H_
 
+#include "SDL2/SDL.h"
 #include "buildings/Building.h"
 #include "resources/Resource.h"
 
@@ -15,6 +16,10 @@ class Field {
 public:
 	Field();
 	void reset();
+
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
+	void renderField(SDL_Renderer* renderer, SDL_Rect rect, int zoom) const;
 
 	void setType(bool land);
 	void setMoist(bool moist);
@@ -36,6 +41,16 @@ public:
 	unsigned int getCoal() const;
 	unsigned int getOil() const;
 
+	Resource* getResource() {
+		return resource;
+	}
+	void setResource(Resource* res) {
+		if (resource != NULL) {
+			delete resource;
+		}
+		resource = res;
+	}
+
 	virtual ~Field();
 private:
 	bool land;
@@ -43,13 +58,19 @@ private:
 
 	Resource*	resource;
 	Building*	building;
-	unsigned int trees;
+//	unsigned int trees;
 	unsigned int stone;
 	unsigned int gold;
 	unsigned int iron;
 	unsigned int copper;
 	unsigned int coal;
 	unsigned int oil;
+
+	static SDL_Texture* sand;
+	static SDL_Texture* gras;
+	static SDL_Texture* water;
+	static SDL_Texture* deepwater;
+
 };
 
 #endif /* FIELD_H_ */

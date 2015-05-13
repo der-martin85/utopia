@@ -21,20 +21,15 @@ public:
 		return TYPE;
 	}
 
-	unsigned int getCoal() const {
-		return coal;
+	void setAmount(unsigned int coal) {
+		this->amount = coal;
 	}
 
-	void setCoal(unsigned int coal) {
-		this->coal = coal;
-	}
-
-	virtual void loadMedia(SDL_Renderer* renderer);
-	virtual void close();
-	virtual void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
 
 private:
-	unsigned int coal;
 };
 
 #endif /* RESOURCES_COAL_H_ */

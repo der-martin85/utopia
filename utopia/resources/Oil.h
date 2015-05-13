@@ -14,23 +14,22 @@ class Oil: public Resource {
 public:
 	static const ResourceType_t TYPE = 7;
 
-	Oil();
+	Oil(unsigned int oil);
 	virtual ~Oil();
 
 	ResourceType_t getResourceType() {
 		return TYPE;
 	}
 
-	unsigned int getOil() const {
-		return oil;
+	void setAmount(unsigned int oil) {
+		this->amount = oil;
 	}
 
-	void setOil(unsigned int oil) {
-		this->oil = oil;
-	}
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
 
 private:
-	unsigned int oil;
 };
 
 #endif /* RESOURCES_OIL_H_ */

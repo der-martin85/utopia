@@ -14,23 +14,22 @@ class Stone: public Resource {
 public:
 	static const ResourceType_t TYPE = 2;
 
-	Stone();
+	Stone(unsigned int stone);
 	virtual ~Stone();
 
 	ResourceType_t getResourceType() {
 		return TYPE;
 	}
 
-	unsigned int getStone() const {
-		return stone;
+	void setAmount(unsigned int stone) {
+		this->amount = stone;
 	}
 
-	void setStone(unsigned int stone) {
-		this->stone = stone;
-	}
+	static bool loadMedia(SDL_Renderer* renderer);
+	static void close();
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
 
 private:
-	unsigned int stone;
 };
 
 #endif /* RESOURCES_STONE_H_ */
