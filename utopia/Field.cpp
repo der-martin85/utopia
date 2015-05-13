@@ -122,6 +122,7 @@ void Field::reset() {
 
 	if (resource != NULL) {
 		delete resource;
+		resource = NULL;
 	}
 }
 
