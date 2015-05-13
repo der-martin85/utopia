@@ -309,24 +309,10 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
 
 bool Map::loadMedia(SDL_Renderer* renderer)
 {
-    //Loading success flag
-    bool success = true;
-
-	SDL_Surface* selectedIMG = NULL;
-
-    selectedIMG = IMG_Load("./images/selected.png");
-    selectedTexture = SDL_CreateTextureFromSurface(renderer, selectedIMG);
-	SDL_FreeSurface(selectedIMG);
-
-	success = Field::loadMedia(renderer);
-
-    return success;
+    return Field::loadMedia(renderer);
 }
 
 void Map::close() {
-	SDL_DestroyTexture(selectedTexture);
-	selectedTexture = NULL;
-
 	Field::close();
 }
 
@@ -370,14 +356,6 @@ void Map::renderMap(SDL_Renderer* renderer, Game* game, int SCREEN_WIDTH, int SC
 				}
 				const Field* field = game->getMap()->getField(x, y);
 				field->renderField(renderer, dstrect, game->getZoom(), selected);
-//				if ((((x >= game->getSelectedStartX() && x <= game->getSelectedEndX()) ||
-//							   (x <= game->getSelectedStartX() && x >= game->getSelectedEndX())) &&
-//					   ((y >= game->getSelectedStartY() && y <= game->getSelectedEndY()) ||
-//							   (y <= game->getSelectedStartY() && y >= game->getSelectedEndY())))) {
-//				   SDL_Rect sdstrect = {dstrect.x, dstrect.y+(dstrect.h/2),
-//						   (game->getZoom() * 4), (game->getZoom() * 2)};
-//				   SDL_RenderCopy(renderer, selectedTexture, NULL, &sdstrect);
-//				}
 		   }
 	   }
    }

@@ -52,8 +52,6 @@ private:
 	void generateCoast(oceans_t ocean, int waterLevel);
 	void generateRiver(river_t river, int waterLevel);
 
-	SDL_Texture* selectedTexture = NULL;
-
 	SDL_Rect isoTo2D(int x, int y, Game* game);
 
 	Field** map;

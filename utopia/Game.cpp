@@ -12,7 +12,7 @@ Game::Game(int x, int y):
 		speed(0),
 		map(NULL),
 		selected{-1, -1, -1, -1},
-		mX(0), mY(0), oldMX(0xFFFFFFFF), oldMY(0xFFFFFFFF),
+		mX(0), mY(0), oldMX(-1), oldMY(-1),
 		posX(-16), posY(16),
 		zoom(16),
 		angle(0),
@@ -161,12 +161,12 @@ void Game::startDragging() {
 }
 
 void Game::doneDragging() {
-	if (oldMX != 0xFFFFFFFF) {
+	if (oldMX != -1) {
 		changePosX((oldMX - mX) / zoom);
 		changePosY((mY - oldMY) / zoom);
 	}
-	oldMX = 0xFFFFFFFF;
-	oldMY = 0xFFFFFFFF;
+	oldMX = -1;
+	oldMY = -1;
 }
 
 void Game::lock() {
