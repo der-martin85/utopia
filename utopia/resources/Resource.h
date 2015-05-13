@@ -16,9 +16,15 @@ public:
 	Resource(unsigned int amount): amount(amount), texture(NULL) {}
 	virtual ~Resource() {}
 
-	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect) const {
+	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect, int zoom, bool selected) const {
 		if (texture != NULL && *texture != NULL) {
+			if (selected) {
+				SDL_SetTextureColorMod(*texture, 128, 128, 255);
+			}
 			SDL_RenderCopy(renderer, *texture, NULL, &rect);
+			if (selected) {
+				SDL_SetTextureColorMod(*texture, 255, 255, 255);
+			}
 		}
 	}
 	virtual void setAmount(unsigned int amount) = 0;

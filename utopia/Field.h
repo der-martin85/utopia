@@ -19,7 +19,7 @@ public:
 
 	static bool loadMedia(SDL_Renderer* renderer);
 	static void close();
-	void renderField(SDL_Renderer* renderer, SDL_Rect rect, int zoom) const;
+	void renderField(SDL_Renderer* renderer, SDL_Rect rect, int zoom, bool selected) const;
 
 	void setType(bool land);
 	void setMoist(bool moist);
@@ -58,13 +58,6 @@ private:
 
 	Resource*	resource;
 	Building*	building;
-//	unsigned int trees;
-	unsigned int stone;
-	unsigned int gold;
-	unsigned int iron;
-	unsigned int copper;
-	unsigned int coal;
-	unsigned int oil;
 
 	static SDL_Texture* sand;
 	static SDL_Texture* gras;

@@ -13,23 +13,42 @@
 class Coal: public Resource {
 public:
 	static const ResourceType_t TYPE = 6;
+	static const int MAX_AMOUNT = 100;
 
 	Coal(unsigned int coal);
 	virtual ~Coal();
 
-	virtual ResourceType_t getResourceType() {
+	ResourceType_t getResourceType() {
 		return TYPE;
 	}
 
 	void setAmount(unsigned int coal) {
+		if (coal > MAX_AMOUNT) {
+			coal = MAX_AMOUNT;
+		}
 		this->amount = coal;
+		setTexture();
 	}
 
 	static bool loadMedia(SDL_Renderer* renderer);
 	static void close();
-	void renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect);
 
 private:
+	void setTexture() {
+		int numTexture = (amount * (NUM_TEXTURES + 1)) / (MAX_AMOUNT - (MAX_AMOUNT / NUM_TEXTURES + 1));
+		if (numTexture > 0) {
+			numTexture--;
+			if (numTexture > NUM_TEXTURES) {
+				numTexture = NUM_TEXTURES - 1;
+			}
+			texture = &(coalTexture[numTexture - 1]);
+		} else {
+			texture = NULL;
+		}
+	}
+
+	static const int NUM_TEXTURES = 3;
+	static SDL_Texture* coalTexture[NUM_TEXTURES];
 };
 
 #endif /* RESOURCES_COAL_H_ */

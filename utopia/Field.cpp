@@ -25,13 +25,7 @@ Field::Field():
 	land(true),
 	moist(false),
 	resource(NULL),
-	building(NULL),
-	stone(0),
-	gold(0),
-	iron(0),
-	copper(0),
-	coal(0),
-	oil(0)
+	building(NULL)
 {
 }
 
@@ -88,22 +82,34 @@ void Field::close() {
 	Tree::close();
 }
 
-void Field::renderField(SDL_Renderer* renderer, SDL_Rect rect, int zoom) const {
+void Field::renderField(SDL_Renderer* renderer, SDL_Rect rect, int zoom, bool selected) const {
+	if (selected) {
+		SDL_SetTextureColorMod(sand, 128, 128, 255);
+		SDL_SetTextureColorMod(gras, 128, 128, 255);
+		SDL_SetTextureColorMod(water, 128, 255, 128);
+		SDL_SetTextureColorMod(deepwater, 128, 255, 128);
+	}
 	if (getType()) {
 		if (getMoist()) {
-			   SDL_RenderCopy(renderer, gras, NULL, &rect);
+			SDL_RenderCopy(renderer, gras, NULL, &rect);
 		} else {
-			   SDL_RenderCopy(renderer, sand, NULL, &rect);
+			SDL_RenderCopy(renderer, sand, NULL, &rect);
 		}
 	} else {
 		if (getMoist()) {
-			   SDL_RenderCopy(renderer, deepwater, NULL, &rect);
+			SDL_RenderCopy(renderer, deepwater, NULL, &rect);
 		} else {
-			   SDL_RenderCopy(renderer, water, NULL, &rect);
+			SDL_RenderCopy(renderer, water, NULL, &rect);
 		}
 	}
-	if (resource != NULL) {
-		resource->renderFieldResource(renderer, rect);
+	if (selected) {
+		SDL_SetTextureColorMod(sand, 255, 255, 255);
+		SDL_SetTextureColorMod(gras, 255, 255, 255);
+		SDL_SetTextureColorMod(water, 255, 255, 255);
+		SDL_SetTextureColorMod(deepwater, 255, 255, 255);
+	}
+	if (getType() && resource != NULL) {
+		resource->renderFieldResource(renderer, rect, zoom, selected);
 	}
 }
 
@@ -113,12 +119,6 @@ Field::~Field() {
 void Field::reset() {
 	land = true;
 	moist = false;
-	stone = 0;
-	gold = 0;
-	iron = 0;
-	copper = 0;
-	coal = 0;
-	oil = 0;
 
 	if (resource != NULL) {
 		delete resource;
@@ -133,7 +133,7 @@ void Field::setMoist(bool moist) {
 	this->moist = moist;
 }
 void Field::setTrees(unsigned int trees) {
-	if (trees > Tree::MAX_NUM_TREES) {
+	if (trees >= Tree::MAX_NUM_TREES) {
 		trees = Tree::MAX_NUM_TREES - 1;
 	} else {
 		trees--;
@@ -144,22 +144,58 @@ void Field::setTrees(unsigned int trees) {
 	resource = new Tree(trees);
 }
 void Field::setStone(unsigned int stone) {
-	this->stone = stone;
+	if (stone > Stone::MAX_AMOUNT) {
+		stone = Stone::MAX_AMOUNT;
+	}
+	if (resource != NULL) {
+		delete resource;
+	}
+	resource = new Stone(stone);
 }
 void Field::setGold(unsigned int gold) {
-	this->gold = gold;
+	if (gold > Gold::MAX_AMOUNT) {
+		gold = Gold::MAX_AMOUNT;
+	}
+	if (resource != NULL) {
+		delete resource;
+	}
+	resource = new Gold(gold);
 }
 void Field::setIron(unsigned int iron) {
-	this->iron = iron;
+	if (iron > Iron::MAX_AMOUNT) {
+		iron = Iron::MAX_AMOUNT;
+	}
+	if (resource != NULL) {
+		delete resource;
+	}
+	resource = new Iron(iron);
 }
 void Field::setCopper(unsigned int copper) {
-	this->copper = copper;
+	if (copper > Copper::MAX_AMOUNT) {
+		copper = Copper::MAX_AMOUNT;
+	}
+	if (resource != NULL) {
+		delete resource;
+	}
+	resource = new Copper(copper);
 }
 void Field::setCoal(unsigned int coal) {
-	this->coal = coal;
+	if (coal > Coal::MAX_AMOUNT) {
+		coal = Coal::MAX_AMOUNT;
+	}
+	if (resource != NULL) {
+		delete resource;
+	}
+	resource = new Coal(coal);
 }
 void Field::setOil(unsigned int oil) {
-	this->oil = oil;
+	if (oil > Oil::MAX_AMOUNT) {
+		oil = Oil::MAX_AMOUNT;
+	}
+	if (resource != NULL) {
+		delete resource;
+	}
+	resource = new Oil(oil);
 }
 
 bool Field::getType() const {
@@ -175,21 +211,39 @@ unsigned int Field::getTrees() const {
 	return 0;
 }
 unsigned int Field::getStone() const {
-	return stone;
+	if (resource != NULL && resource->getResourceType() == Stone::TYPE) {
+		return resource->getAmount();
+	}
+	return 0;
 }
 unsigned int Field::getGold() const {
-	return gold;
+	if (resource != NULL && resource->getResourceType() == Gold::TYPE) {
+		return resource->getAmount();
+	}
+	return 0;
 }
 unsigned int Field::getIron() const {
-	return iron;
+	if (resource != NULL && resource->getResourceType() == Iron::TYPE) {
+		return resource->getAmount();
+	}
+	return 0;
 }
 unsigned int Field::getCopper() const {
-	return copper;
+	if (resource != NULL && resource->getResourceType() == Copper::TYPE) {
+		return resource->getAmount();
+	}
+	return 0;
 }
 unsigned int Field::getCoal() const {
-	return coal;
+	if (resource != NULL && resource->getResourceType() == Coal::TYPE) {
+		return resource->getAmount();
+	}
+	return 0;
 }
 unsigned int Field::getOil() const {
-	return oil;
+	if (resource != NULL && resource->getResourceType() == Oil::TYPE) {
+		return resource->getAmount();
+	}
+	return 0;
 }
 

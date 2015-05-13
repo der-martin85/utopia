@@ -10,6 +10,13 @@
 #include <time.h>
 #include "SDL2/SDL_image.h"
 #include "resources/Tree.h"
+#include "resources/Stone.h"
+#include "resources/Gold.h"
+#include "resources/Iron.h"
+#include "resources/Copper.h".h"
+#include "resources/Coal.h"
+#include "resources/Oil.h"
+
 
 Map::Map(int x, int y):
 		maxX(x), maxY(y)
@@ -246,22 +253,22 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
         	if (((rand() % 100) < 5)) {
         		switch (rand() % 6) {
         		case 0:
-        			map[x][y].setStone((rand() % 70) + 1);
+        			map[x][y].setStone((rand() % Stone::MAX_AMOUNT) + 1);
         			break;
         		case 1:
-        			map[x][y].setGold((rand() % 50) + 1);
+        			map[x][y].setGold((rand() % Gold::MAX_AMOUNT) + 1);
         			break;
         		case 2:
-        			map[x][y].setIron((rand() % 60) + 1);
+        			map[x][y].setIron((rand() % Iron::MAX_AMOUNT) + 1);
         			break;
         		case 3:
-        			map[x][y].setCopper((rand() % 55) + 1);
+        			map[x][y].setCopper((rand() % Copper::MAX_AMOUNT) + 1);
         			break;
         		case 4:
-        			map[x][y].setCoal((rand() % 50) + 1);
+        			map[x][y].setCoal((rand() % Coal::MAX_AMOUNT) + 1);
         			break;
         		case 5:
-        			map[x][y].setOil((rand() % 50) + 1);
+        			map[x][y].setOil((rand() % Oil::MAX_AMOUNT) + 1);
         			break;
         		}
 
@@ -283,12 +290,12 @@ void Map::generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel) {
         			map[x][y].setMoist((rand() % 10) < 8);
         		}
         		if (map[x][y].getMoist() &&
-        				map[x][y].getStone() < 20 &&
-						map[x][y].getGold() < 20 &&
-						map[x][y].getIron() < 20 &&
-						map[x][y].getCopper() < 20 &&
-						map[x][y].getCoal() < 20 &&
-						map[x][y].getOil() < 20) {
+        				map[x][y].getStone() == 0 &&
+						map[x][y].getGold() == 0 &&
+						map[x][y].getIron() == 0 &&
+						map[x][y].getCopper() == 0 &&
+						map[x][y].getCoal() == 0 &&
+						map[x][y].getOil() == 0) {
                 	if (((rand() % 10) < 6)) {
                 		map[x][y].setTrees((rand() % Tree::MAX_NUM_TREES) + 1);
                 	}
@@ -354,16 +361,23 @@ void Map::renderMap(SDL_Renderer* renderer, Game* game, int SCREEN_WIDTH, int SC
 			if (dstrect.x + dstrect.w > 0 && dstrect.y + dstrect.h > 0 &&
 				   dstrect.x < SCREEN_WIDTH && dstrect.y < SCREEN_HEIGHT)
 			{
-				const Field* field = game->getMap()->getField(x, y);
-				field->renderField(renderer, dstrect, game->getZoom());
-			   if ((((x >= game->getSelectedStartX() && x <= game->getSelectedEndX()) ||
+				bool selected = false;
+				if ((((x >= game->getSelectedStartX() && x <= game->getSelectedEndX()) ||
 							   (x <= game->getSelectedStartX() && x >= game->getSelectedEndX())) &&
 					   ((y >= game->getSelectedStartY() && y <= game->getSelectedEndY()) ||
 							   (y <= game->getSelectedStartY() && y >= game->getSelectedEndY())))) {
-				   SDL_Rect sdstrect = {dstrect.x, dstrect.y+(dstrect.h/2),
-						   (game->getZoom() * 4), (game->getZoom() * 2)};
-				   SDL_RenderCopy(renderer, selectedTexture, NULL, &sdstrect);
-			   }
+				   selected = true;
+				}
+				const Field* field = game->getMap()->getField(x, y);
+				field->renderField(renderer, dstrect, game->getZoom(), selected);
+//				if ((((x >= game->getSelectedStartX() && x <= game->getSelectedEndX()) ||
+//							   (x <= game->getSelectedStartX() && x >= game->getSelectedEndX())) &&
+//					   ((y >= game->getSelectedStartY() && y <= game->getSelectedEndY()) ||
+//							   (y <= game->getSelectedStartY() && y >= game->getSelectedEndY())))) {
+//				   SDL_Rect sdstrect = {dstrect.x, dstrect.y+(dstrect.h/2),
+//						   (game->getZoom() * 4), (game->getZoom() * 2)};
+//				   SDL_RenderCopy(renderer, selectedTexture, NULL, &sdstrect);
+//				}
 		   }
 	   }
    }

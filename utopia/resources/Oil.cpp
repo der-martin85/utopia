@@ -6,30 +6,43 @@
  */
 
 #include "Oil.h"
+#include "SDL2/SDL_image.h"
+#include <string>
 
-Oil::Oil(unsigned int oil):
-	Resource::Resource(oil)
+SDL_Texture* Oil::oilTexture[Oil::NUM_TEXTURES] = {NULL, NULL, NULL};
+
+Oil::Oil(unsigned int coal):
+	Resource::Resource(coal)
 {
-	// TODO Auto-generated constructor stub
-
+	if (coal > MAX_AMOUNT) {
+		coal = MAX_AMOUNT;
+	}
+	this->amount = coal;
+	setTexture();
 }
 
 Oil::~Oil() {
-	// TODO Auto-generated destructor stub
 }
 
 bool Oil::loadMedia(SDL_Renderer* renderer) {
 	bool success = true;
 	SDL_Surface* tmp = NULL;
 
+	std::string stoneName = "./images/resources/oil/oil";
+
+	for (int i = 0; i < NUM_TEXTURES; i++) {
+		std::string name = stoneName + std::to_string(i) + ".png";
+		tmp = IMG_Load(name.c_str());
+		oilTexture[i] = SDL_CreateTextureFromSurface(renderer, tmp);
+		SDL_FreeSurface(tmp);
+	}
+
     return success;
 }
 
 void Oil::close() {
-
+	for (int i = 0; i < NUM_TEXTURES; i++) {
+		SDL_DestroyTexture(oilTexture[i]);
+		oilTexture[i] = NULL;
+	}
 }
-
-void Oil::renderFieldResource(SDL_Renderer* renderer, SDL_Rect rect) {
-
-}
-
