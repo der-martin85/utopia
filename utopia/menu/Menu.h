@@ -9,7 +9,7 @@
 #define MENU_H_
 
 class RenderThread;
-#include "RenderThread.h"
+#include "../RenderThread.h"
 #include "SDL2/SDL.h"
 #include "MenuEntry.h"
 

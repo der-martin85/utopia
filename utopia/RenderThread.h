@@ -12,7 +12,7 @@ class Game;
 class Menu;
 
 #include "Game.h"
-#include "Menu.h"
+#include "menu/Menu.h"
 #include "SDL2/SDL.h"
 
 class RenderThread {

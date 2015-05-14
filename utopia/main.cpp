@@ -6,7 +6,7 @@
 #include "Map.h"
 #include "RenderThread.h"
 #include "SoundThread.h"
-#include "Menu.h"
+#include "menu/Menu.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
 
