@@ -5,13 +5,15 @@
  *      Author: Martin Ringwelski
  */
 
+#ifndef GAME_H_
+#define GAME_H_
+
 #include <pthread.h>
 #include "SDL2/SDL.h"
 
 #include "GameDate.h"
 
-#ifndef GAME_H_
-#define GAME_H_
+#include "Settings.h"
 
 class RenderThread;
 #include "RenderThread.h"
@@ -20,7 +22,7 @@ class Map;
 
 class Game {
 public:
-	Game(int x, int y);
+	Game(int x, int y, Settings* settings);
 	virtual ~Game();
 
 	void setMouseState(int mX, int mY);
@@ -108,6 +110,7 @@ protected:
 
 	pthread_mutex_t mutex;
 	RenderThread* rt;
+	Settings* settings;
 };
 
 #endif /* GAME_H_ */

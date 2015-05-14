@@ -14,8 +14,8 @@
 
 using namespace boost::filesystem;
 
-SoundThread* SoundThread::startThread(bool BackgroundMusic) {
-	SoundThread* ret = new SoundThread(BackgroundMusic);
+SoundThread* SoundThread::startThread(Settings* settings) {
+	SoundThread* ret = new SoundThread(settings);
 	if (ret != NULL) {
 		ret->thread = SDL_CreateThread(SoundThread::threadMethod, "SoundThread", (void *)(ret));
 		if (ret->thread == NULL) {
@@ -26,10 +26,10 @@ SoundThread* SoundThread::startThread(bool BackgroundMusic) {
 	return ret;
 }
 
-SoundThread::SoundThread(bool BackgroundMusic):
+SoundThread::SoundThread(Settings* settings):
 		thread(NULL),
 		quit(false),
-		BackgroundMusic(BackgroundMusic),
+		settings(settings),
 		music(NULL)
 {
 	pthread_mutex_init(&mutex, NULL);
@@ -81,7 +81,7 @@ int SoundThread::threadMethod(void* param) {
 	pthread_mutex_lock(&(t->mutex));
 	while (!t->quit) {
 		pthread_mutex_unlock(&(t->mutex));
-		if( Mix_PlayingMusic() == 0 && t->BackgroundMusic) {
+		if( Mix_PlayingMusic() == 0 && t->settings->isBackgroundMusic()) {
 			if (t->music != NULL) {
 				Mix_FreeMusic( t->music );
 			}

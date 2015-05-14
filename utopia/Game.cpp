@@ -7,7 +7,7 @@
 
 #include "Game.h"
 
-Game::Game(int x, int y):
+Game::Game(int x, int y, Settings* settings):
 		evolutionLevel(0),
 		speed(0),
 		map(NULL),
@@ -17,7 +17,8 @@ Game::Game(int x, int y):
 		zoom(16),
 		angle(0),
 		buttonDown(false),
-		rt(NULL)
+		rt(NULL),
+		settings(settings)
 {
 	pthread_mutex_init(&mutex, NULL);
 	map = new Map(x, y);
@@ -37,10 +38,10 @@ void Game::setMouseState(int mX, int mY) {
 		if (mY < 50) {
 			changePosY(+1);
 		}
-		if (mX > (rt->getScreenWidth() - 50)) {
+		if (mX > (settings->getScreenWidth() - 50)) {
 			changePosX(+1);
 		}
-		if (mY > (rt->getScreenHeight() - 50)) {
+		if (mY > (settings->getScreenHeight() - 50)) {
 			changePosY(-1);
 		}
 	}

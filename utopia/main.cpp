@@ -7,6 +7,7 @@
 #include "RenderThread.h"
 #include "SoundThread.h"
 #include "menu/Menu.h"
+#include "Settings.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
 
@@ -20,46 +21,34 @@ int main(int argc, char* argv[]) {
     const int fieldx = 200;
     const int fieldy = 200;
 
-    int SCREEN_WIDTH = 1280;
-    int SCREEN_HEIGHT = 800;
-    bool FullScreen = false;
-    bool BackgroundMusic = true;
+    Settings settings;
+
 	boost::filesystem::path configFile("./config.ini");
 
     if (argc == 3) {
-    	SCREEN_WIDTH = atoi(argv[1]);
-    	SCREEN_HEIGHT = atoi(argv[2]);
-    	FullScreen = true;
+    	settings.setScreenWidth(atoi(argv[1]));
+    	settings.setScreenWidth(atoi(argv[2]));
+    	settings.setFullscreen(true);
     } else {
-    	if (boost::filesystem::exists(configFile) &&
-    			boost::filesystem::is_regular_file(configFile))
-    	{
-    		std::ifstream cFile;
-    		cFile.open(configFile.c_str());
-    		cFile >> SCREEN_WIDTH >> SCREEN_HEIGHT >> FullScreen >> BackgroundMusic;
-    		cFile.close();
-    	}
+    	settings.loadSettings();
     }
 
 
 	//Map f = Map(fieldx, fieldy);
 	//f.generateMap();
-    Game game(fieldx, fieldy);
+    Game game(fieldx, fieldy, &settings);
     game.generateMap(rand() % 16, rand() % 3, (rand() % 40) + 50);
 
 	Menu menu;
 
-	RenderThread* renderThread = RenderThread::startThread(SCREEN_WIDTH, SCREEN_HEIGHT, &game, &menu);
+	RenderThread* renderThread = RenderThread::startThread(&settings, &game, &menu);
 	if (renderThread == NULL) {
 		return 0;
 	}
 	menu.setRenderThread(renderThread);
 	game.setRenderThread(renderThread);
 
-	if (FullScreen) {
-		renderThread->changeToFullScreen();
-	}
-	SoundThread* soundThread = SoundThread::startThread(BackgroundMusic);
+	SoundThread* soundThread = SoundThread::startThread(&settings);
 
 	while (!menu.quit)
 	{
@@ -133,10 +122,10 @@ int main(int argc, char* argv[]) {
 				   game.changeZoom(+1);
 			   }
 			   if (state[SDL_SCANCODE_F]) {
-				   renderThread->changeToFullScreen();
+				   settings.setFullscreen(true);
 			   }
 			   if (state[SDL_SCANCODE_X]) {
-				   renderThread->changeToWindow();
+				   settings.setFullscreen(false);
 			   }
 			   if (state[SDL_SCANCODE_ESCAPE]) {
 				   menu.quit = true;
@@ -155,14 +144,6 @@ int main(int argc, char* argv[]) {
 	   }
 	   renderThread->signalChange();
 	}
-
-	std::ofstream cFile;
-	cFile.open(configFile.c_str());
-	cFile << renderThread->getScreenWidth() << std::endl;
-	cFile << renderThread->getScreenHeight() << std::endl;
-	cFile << renderThread->isFullscreen() << std::endl;
-	cFile << soundThread->backgroundMusicOn() << std::endl;
-	cFile.close();
 
 	if (renderThread != NULL) {
 	   delete renderThread;

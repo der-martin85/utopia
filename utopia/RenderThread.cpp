@@ -20,8 +20,8 @@ bool RenderThread::init() {
 		window = SDL_CreateWindow( "Utopia 3",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
-				SCREEN_WIDTH,
-				SCREEN_HEIGHT,
+				settings->getScreenWidth(),
+				settings->getScreenHeight(),
 				SDL_WINDOW_SHOWN );
 		if( window == NULL ) {
 			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
@@ -48,8 +48,8 @@ void RenderThread::close() {
 	}
 }
 
-RenderThread* RenderThread::startThread(int screenWidth, int screenHeight, Game* game, Menu* menu) {
-	RenderThread* ret = new RenderThread(screenWidth, screenHeight, game, menu);
+RenderThread* RenderThread::startThread(Settings* settings, Game* game, Menu* menu) {
+	RenderThread* ret = new RenderThread(settings, game, menu);
 	if (ret != NULL) {
 		ret->thread = SDL_CreateThread(RenderThread::threadMethod, "RenderThread", (void *)(ret));
 		if (ret->thread == NULL) {
@@ -71,19 +71,21 @@ int RenderThread::threadMethod(void* param) {
 
 	pthread_mutex_lock(&(t->mutex));
 	do {
-		if (t->changeFullscreen) {
-			SDL_SetWindowFullscreen(t->window, SDL_WINDOW_FULLSCREEN);
-			t->changeFullscreen = false;
-		} else if (t->changeWindow) {
-			SDL_SetWindowFullscreen(t->window, 0);
-			t->changeWindow = false;
+		if (t->fullscreen != t->settings->isFullscreen()) {
+			if (t->settings->isFullscreen()) {
+				SDL_SetWindowFullscreen(t->window, SDL_WINDOW_FULLSCREEN);
+				t->fullscreen = true;
+			} else {
+				SDL_SetWindowFullscreen(t->window, 0);
+				t->fullscreen = false;
+			}
 		}
 		pthread_mutex_unlock(&(t->mutex));
 
 		SDL_RenderClear(t->renderer);
 //		std::cout << "render" << std::endl;
-		t->game->getMap()->renderMap(t->renderer, t->game, t->SCREEN_WIDTH, t->SCREEN_HEIGHT);
-		t->menu->renderMenu(t->renderer, t->SCREEN_HEIGHT);
+		t->game->getMap()->renderMap(t->renderer, t->game, t->settings->getScreenWidth(), t->settings->getScreenHeight());
+		t->menu->renderMenu(t->renderer, t->settings->getScreenHeight());
 
 		SDL_RenderPresent(t->renderer);
 
@@ -100,14 +102,11 @@ int RenderThread::threadMethod(void* param) {
 	return 0;
 }
 
-RenderThread::RenderThread(int screenWidth, int screenHeight, Game* game, Menu* menu):
+RenderThread::RenderThread(Settings* settings, Game* game, Menu* menu):
 		quit(false),
-		changeFullscreen(false),
-		changeWindow(false),
-		FullScreen(false),
+		fullscreen(false),
+		settings(settings),
 		window(NULL), renderer(NULL),
-		SCREEN_WIDTH(screenWidth),
-		SCREEN_HEIGHT(screenHeight),
 		game(game),
 		menu(menu),
 		thread(NULL),

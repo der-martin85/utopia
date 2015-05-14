@@ -14,26 +14,12 @@ class Menu;
 #include "Game.h"
 #include "menu/Menu.h"
 #include "SDL2/SDL.h"
+#include "Settings.h"
 
 class RenderThread {
 public:
 	~RenderThread();
-	static RenderThread* startThread(int screenWidth, int screenHeight, Game* game, Menu* menu);
-	void changeToFullScreen() {
-		pthread_mutex_lock(&mutex);
-		changeFullscreen = true;
-		pthread_mutex_unlock(&mutex);
-		pthread_cond_signal(&refresh);
-		FullScreen = true;
-	}
-
-	void changeToWindow() {
-		pthread_mutex_lock(&mutex);
-		changeWindow = true;
-		pthread_mutex_unlock(&mutex);
-		pthread_cond_signal(&refresh);
-		FullScreen = false;
-	}
+	static RenderThread* startThread(Settings* settings, Game* game, Menu* menu);
 	void signalChange() {
 		pthread_mutex_lock(&mutex);
 		change = true;
@@ -41,28 +27,15 @@ public:
 		pthread_mutex_unlock(&mutex);
 	}
 
-	int getScreenWidth() {
-		return SCREEN_WIDTH;
-	}
-	int getScreenHeight() {
-		return SCREEN_HEIGHT;
-	}
-	bool isFullscreen() {
-		return FullScreen;
-	}
-
 private:
 	bool init();
 	void close();
 
 	bool quit;
-	bool changeFullscreen;
-	bool changeWindow;
-	bool FullScreen;
+	bool fullscreen;
+	Settings* settings;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	const int SCREEN_WIDTH;
-	const int SCREEN_HEIGHT;
 	Game* game;
 	Menu* menu;
 	SDL_Thread* thread;
@@ -71,7 +44,7 @@ private:
 	bool change;
 
 	static int threadMethod(void* param);
-	RenderThread(int screenWidth, int screenHeight, Game* game, Menu* menu);
+	RenderThread(Settings* settings, Game* game, Menu* menu);
 };
 
 #endif /* RENDERTHREAD_H_ */
