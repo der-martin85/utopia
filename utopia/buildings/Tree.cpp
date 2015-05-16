@@ -14,7 +14,7 @@ SDL_Texture* Tree::conifer[Tree::MAX_NUM_TREES] = {NULL, NULL, NULL, NULL, NULL}
 SDL_Texture* Tree::mixed[Tree::MAX_NUM_TREES] = {NULL, NULL, NULL, NULL, NULL};
 
 Tree::Tree(unsigned int numTrees):
-	Resource::Resource(numTrees)
+	amount(numTrees)
 {
 	switch(rand()%3) {
 	case 0:
@@ -47,9 +47,9 @@ bool Tree::loadMedia(SDL_Renderer* renderer) {
 	bool success = true;
 	SDL_Surface* tmp = NULL;
 
-	std::string broadleafName = "./images/resources/trees/broadleaf";
-	std::string coniferName = "./images/resources/trees/conifer";
-	std::string mixedName = "./images/resources/trees/mixed";
+	std::string broadleafName = "./images/buildings/trees/broadleaf";
+	std::string coniferName = "./images/buildings/trees/conifer";
+	std::string mixedName = "./images/buildings/trees/mixed";
 
 	for (int i = 0; i < MAX_NUM_TREES; i++) {
 		std::string name = broadleafName + std::to_string(i) + ".png";

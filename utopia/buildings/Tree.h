@@ -8,18 +8,27 @@
 #ifndef RESOURCES_TREE_H_
 #define RESOURCES_TREE_H_
 
-#include "Resource.h"
+#include "Building.h"
+#include "SDL2/SDL.h"
 
-class Tree: public Resource {
+class Tree: public Building {
 public:
-	static const ResourceType_t TYPE = 1;
+	static const BuildingType_t TYPE = 1;
 	static const int MAX_NUM_TREES = 9;
 
 	Tree(unsigned int numTrees);
 	virtual ~Tree();
 
-	ResourceType_t getResourceType() {
+	BuildingType_t getBuildingType() {
 		return TYPE;
+	}
+
+	unsigned int getNumTrees() const {
+		return amount;
+	}
+
+	void setNumTrees(unsigned int num) {
+		amount = num;
 	}
 
 	void setAmount(unsigned int trees) {
@@ -46,6 +55,8 @@ private:
 		CONIFER,
 		MIXED
 	} kind;
+
+	unsigned int amount;
 
 	static SDL_Texture* broadleaf[MAX_NUM_TREES];
 	static SDL_Texture* conifer[MAX_NUM_TREES];

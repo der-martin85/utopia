@@ -14,12 +14,12 @@
 #include "resources/Iron.h"
 #include "resources/Oil.h"
 #include "resources/Stone.h"
-#include "resources/Tree.h"
+#include "buildings/Tree.h"
 
 SDL_Texture* Field::sand		= NULL;
 SDL_Texture* Field::gras		= NULL;
-SDL_Texture* Field::water	= NULL;
-SDL_Texture* Field::deepwater = NULL;
+SDL_Texture* Field::water		= NULL;
+SDL_Texture* Field::deepwater	= NULL;
 
 Field::Field():
 	land(true),
@@ -111,6 +111,9 @@ void Field::renderField(SDL_Renderer* renderer, SDL_Rect rect, int zoom, bool se
 	if (getType() && resource != NULL) {
 		resource->renderFieldResource(renderer, rect, zoom, selected);
 	}
+	if (building != NULL) {
+		building->renderBuilding(renderer, rect, zoom, selected);
+	}
 }
 
 Field::~Field() {
@@ -138,10 +141,10 @@ void Field::setTrees(unsigned int trees) {
 	} else {
 		trees--;
 	}
-	if (resource != NULL) {
-		delete resource;
+	if (building != NULL) {
+		delete building;
 	}
-	resource = new Tree(trees);
+	building = new Tree(trees);
 }
 void Field::setStone(unsigned int stone) {
 	if (stone > Stone::MAX_AMOUNT) {
@@ -205,8 +208,8 @@ bool Field::getMoist() const {
 	return moist;
 }
 unsigned int Field::getTrees() const {
-	if (resource != NULL && resource->getResourceType() == Tree::TYPE) {
-		return resource->getAmount();
+	if (building != NULL && building->getBuildingType() == Tree::TYPE) {
+		return ((Tree*)building)->getNumTrees();
 	}
 	return 0;
 }

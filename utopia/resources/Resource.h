@@ -31,7 +31,6 @@ public:
 	unsigned int getAmount() const {
 		return amount;
 	}
-
 	virtual ResourceType_t getResourceType() = 0;
 
 protected:

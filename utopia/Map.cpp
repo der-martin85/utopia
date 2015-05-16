@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "SDL2/SDL_image.h"
-#include "resources/Tree.h"
+#include "buildings/Tree.h"
 #include "resources/Stone.h"
 #include "resources/Gold.h"
 #include "resources/Iron.h"
