@@ -91,6 +91,8 @@ int SoundThread::threadMethod(void* param) {
 			if( Mix_PlayMusic( t->music, 1 ) == -1 ) {
 				return 0;
 			}
+		} else if (!t->settings->isBackgroundMusic()) {
+			Mix_HaltMusic();
 		}
 		//pthread_cond_wait(&(t->condition), &(t->mutex));
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));

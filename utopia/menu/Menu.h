@@ -12,10 +12,11 @@ class RenderThread;
 #include "../RenderThread.h"
 #include "SDL2/SDL.h"
 #include "MenuEntry.h"
+#include "../Settings.h"
 
 class Menu {
 public:
-	Menu();
+	Menu(Settings* settings);
 	virtual ~Menu();
 
 	void setRenderThread(RenderThread* rt) {
@@ -29,6 +30,7 @@ public:
 	bool quit;
 private:
 	RenderThread* rt;
+	Settings* settings;
 
 	SDL_Texture* menuBackgroundTexture = NULL;
 

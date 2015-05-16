@@ -13,7 +13,7 @@
 #include "resources/Stone.h"
 #include "resources/Gold.h"
 #include "resources/Iron.h"
-#include "resources/Copper.h".h"
+#include "resources/Copper.h"
 #include "resources/Coal.h"
 #include "resources/Oil.h"
 

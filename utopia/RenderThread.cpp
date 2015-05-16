@@ -7,6 +7,7 @@
 
 #include "RenderThread.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 
 bool RenderThread::init() {
 	//Initialization flag
@@ -17,6 +18,7 @@ bool RenderThread::init() {
 		success = false;
 	} else {
 		//Create window
+		resolution = settings->getResolution();
 		window = SDL_CreateWindow( "Utopia 3",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
@@ -31,6 +33,8 @@ bool RenderThread::init() {
 			renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
 		}
 	}
+	TTF_Init();
+
 	return success;
 }
 
@@ -80,8 +84,12 @@ int RenderThread::threadMethod(void* param) {
 				t->fullscreen = false;
 			}
 		}
+		if (t->resolution != t->settings->getResolution()) {
+			SDL_SetWindowSize(t->window, t->settings->getScreenWidth(), t->settings->getScreenHeight());
+		}
 		pthread_mutex_unlock(&(t->mutex));
 
+		SDL_SetRenderDrawColor(t->renderer, 0, 0, 0, 255);
 		SDL_RenderClear(t->renderer);
 //		std::cout << "render" << std::endl;
 		t->game->getMap()->renderMap(t->renderer, t->game, t->settings->getScreenWidth(), t->settings->getScreenHeight());

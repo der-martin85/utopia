@@ -33,6 +33,7 @@ private:
 
 	bool quit;
 	bool fullscreen;
+	Settings::Resolution_t resolution;
 	Settings* settings;
 	SDL_Window* window;
 	SDL_Renderer* renderer;

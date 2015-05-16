@@ -26,8 +26,7 @@ int main(int argc, char* argv[]) {
 	boost::filesystem::path configFile("./config.ini");
 
     if (argc == 3) {
-    	settings.setScreenWidth(atoi(argv[1]));
-    	settings.setScreenWidth(atoi(argv[2]));
+    	settings.setResolution((Settings::Resolution_t)atoi(argv[2]));
     	settings.setFullscreen(true);
     } else {
     	settings.loadSettings();
@@ -39,7 +38,7 @@ int main(int argc, char* argv[]) {
     Game game(fieldx, fieldy, &settings);
     game.generateMap(rand() % 16, rand() % 3, (rand() % 40) + 50);
 
-	Menu menu;
+	Menu menu(&settings);
 
 	RenderThread* renderThread = RenderThread::startThread(&settings, &game, &menu);
 	if (renderThread == NULL) {
@@ -73,13 +72,15 @@ int main(int argc, char* argv[]) {
 	   case SDL_MOUSEBUTTONDOWN:
 		   {
 			   const SDL_MouseButtonEvent* mbe = (SDL_MouseButtonEvent*)(&event);
-			   if (!menu.click(mX, mY, mbe->button)) {
-				   if (mbe->button == SDL_BUTTON_RIGHT) {
-					   game.startDragging();
-				   }
-				   if (mbe->button == SDL_BUTTON_LEFT) {
-					   // Feld markieren
-					   game.startSelecting();
+			   if (!(settings.isShowSettings() && settings.click(mX, mY, mbe->button))) {
+				   if (!menu.click(mX, mY, mbe->button)) {
+					   if (mbe->button == SDL_BUTTON_RIGHT) {
+						   game.startDragging();
+					   }
+					   if (mbe->button == SDL_BUTTON_LEFT) {
+						   // Feld markieren
+						   game.startSelecting();
+					   }
 				   }
 			   }
 			   break;
@@ -153,6 +154,8 @@ int main(int argc, char* argv[]) {
 	}
 	//Quit SDL subsystems
 	SDL_Quit();
+
+	settings.saveSettings();
 
 	return 0;
 }

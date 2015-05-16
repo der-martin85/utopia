@@ -8,14 +8,16 @@
 #include "Menu.h"
 #include "SDL2/SDL_image.h"
 
-Menu::Menu():
+Menu::Menu(Settings* settings):
 	quit(false),
 	rt(NULL),
+	settings(settings),
 	entry(NULL)
 {
 	MenuEntry* tmp = new MenuEntry("./images/menu/landscape.png");
 	entry = tmp;
 	tmp = new MenuEntry("./images/menu/settings.png");
+	tmp->addSubentry("./images/menu/settings.png");
 	tmp->addSubentry("./images/menu/quit.png");
 	entry->addEntry(tmp);
 }
@@ -32,8 +34,12 @@ bool Menu::click(int x, int y, Uint8 button) {
 		return false;
 	} else {
 		if (button == SDL_BUTTON_LEFT) {
-			if (clickon.top == 1 && clickon.sub == 0) {
-				quit = true;
+			if (clickon.top == 1) {
+				if (clickon.sub == 1) {
+					quit = true;
+				} else if (clickon.sub == 0) {
+					settings->setShowSettings(true);
+				}
 			}
 		}
 		return true;
@@ -46,6 +52,8 @@ void Menu::loadMedia(SDL_Renderer* renderer) {
 	SDL_FreeSurface(menuIMGs);
 
 	entry->loadImages(renderer);
+
+	settings->loadMedia(renderer);
 }
 
 void Menu::close() {
@@ -60,4 +68,8 @@ void Menu::renderMenu(SDL_Renderer* renderer, int SCREEN_HEIGHT) {
 	SDL_RenderCopy(renderer, menuBackgroundTexture, NULL, &dstrect);
 
 	entry->renderMenu(renderer, MenuEntry::ENTRY_SPACEX, MenuEntry::ENTRY_SPACEY);
+
+	if (settings->isShowSettings()) {
+		settings->renderSettings(renderer);
+	}
 }
