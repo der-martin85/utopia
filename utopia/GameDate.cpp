@@ -7,7 +7,7 @@
 
 #include "GameDate.h"
 
-GameDate::GameDate(int year, int month, int day):
+GameDate::GameDate(int year, char month, char day):
 		year(year),
 		month(month),
 		day(day)

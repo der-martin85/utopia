@@ -146,6 +146,8 @@ int main(int argc, char* argv[]) {
 	   renderThread->signalChange();
 	}
 
+	game.saveGame("test.uc3");
+
 	if (renderThread != NULL) {
 	   delete renderThread;
 	}

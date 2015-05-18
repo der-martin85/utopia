@@ -10,7 +10,7 @@
 
 class GameDate {
 public:
-	GameDate(int year = 0, int month = 1, int day = 1);
+	GameDate(int year = 0, char month = 1, char day = 1);
 	virtual ~GameDate();
 
 	void addDays(int days);
@@ -18,16 +18,16 @@ public:
 	int getYear() {
 		return year;
 	}
-	int getMonth() {
+	char getMonth() {
 		return month;
 	}
-	int getDay() {
+	char getDay() {
 		return day;
 	}
 protected:
 	int year;
-	int month;
-	int day;
+	char month;
+	char day;
 };
 
 #endif /* GAMEDATE_H_ */

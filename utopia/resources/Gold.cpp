@@ -41,6 +41,12 @@ bool Gold::loadMedia(SDL_Renderer* renderer) {
     return success;
 }
 
+void Gold::writeResource(std::ofstream* file) {
+	file->put((char)(TYPE >> 8));
+	file->put((char)(TYPE));
+	file->put((char)amount);
+}
+
 void Gold::close() {
 	for (int i = 0; i < NUM_TEXTURES; i++) {
 		SDL_DestroyTexture(goldTexture[i]);

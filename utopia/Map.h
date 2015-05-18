@@ -30,7 +30,7 @@ public:
 	};
 
 	Map(int x, int y);
-	Map(char* data, int length);
+	Map(std::ifstream* fstream);
 	~Map();
 	void generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel);
 
@@ -43,6 +43,8 @@ public:
 	bool loadMedia(SDL_Renderer* renderer);
 	void renderMap(SDL_Renderer* renderer, Game* game, int SCREEN_WIDTH, int SCREEN_HEIGHT);
 	void close();
+
+	void writeFile(std::ofstream* fstream);
 
 	const int maxX;
 	const int maxY;

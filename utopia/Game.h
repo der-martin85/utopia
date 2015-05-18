@@ -9,6 +9,7 @@
 #define GAME_H_
 
 #include <pthread.h>
+#include <string>
 #include "SDL2/SDL.h"
 
 #include "GameDate.h"
@@ -75,6 +76,8 @@ public:
 		this->rt = rt;
 	}
 
+	void loadGame(std::string fileName);
+	void saveGame(std::string fileName);
 
 protected:
 	void correctPosY() {
@@ -92,7 +95,10 @@ protected:
 		   }
 	}
 
-	int		evolutionLevel;
+	std::string cityName;
+	std::string mayorName;
+
+	unsigned int		evolutionLevel;
 	unsigned int		speed;
 	GameDate	actualDate;
 	Map*		map;

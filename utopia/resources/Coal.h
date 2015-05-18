@@ -22,6 +22,8 @@ public:
 		return TYPE;
 	}
 
+	void writeResource(std::ofstream* file);
+
 	void setAmount(unsigned int coal) {
 		if (coal > MAX_AMOUNT) {
 			coal = MAX_AMOUNT;

@@ -22,6 +22,8 @@ public:
 		return TYPE;
 	}
 
+	void writeResource(std::ofstream* file);
+
 	void setAmount(unsigned int gold) {
 		if (gold > MAX_AMOUNT) {
 			gold = MAX_AMOUNT;

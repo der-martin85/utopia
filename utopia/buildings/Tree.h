@@ -14,36 +14,37 @@
 class Tree: public Building {
 public:
 	static const BuildingType_t TYPE = 1;
-	static const int MAX_NUM_TREES = 9;
+	static const char MAX_NUM_TREES = 9;
 
-	Tree(unsigned int numTrees);
+	Tree(unsigned char numTrees);
 	virtual ~Tree();
 
 	BuildingType_t getBuildingType() {
 		return TYPE;
 	}
 
-	unsigned int getNumTrees() const {
+	void writeBuilding(std::ofstream* file);
+
+	unsigned char getNumTrees() const {
 		return amount;
 	}
 
-	void setNumTrees(unsigned int num) {
-		amount = num;
-	}
-
-	void setAmount(unsigned int trees) {
+	void setNumTrees(unsigned char num) {
+		if (num > MAX_NUM_TREES) {
+			num = MAX_NUM_TREES;
+		}
 		switch(kind) {
 		case BROADLEAF:
-			texture = &(broadleaf[trees]);
+			texture = &(broadleaf[num]);
 			break;
 		case CONIFER:
-			texture = &(conifer[trees]);
+			texture = &(conifer[num]);
 			break;
 		case MIXED:
-			texture = &(mixed[trees]);
+			texture = &(mixed[num]);
 			break;
 		}
-		this->amount = trees;
+		this->amount = num;
 	}
 
 	static bool loadMedia(SDL_Renderer* renderer);
@@ -56,7 +57,7 @@ private:
 		MIXED
 	} kind;
 
-	unsigned int amount;
+	unsigned char amount;
 
 	static SDL_Texture* broadleaf[MAX_NUM_TREES];
 	static SDL_Texture* conifer[MAX_NUM_TREES];

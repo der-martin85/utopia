@@ -13,7 +13,7 @@ SDL_Texture* Tree::broadleaf[Tree::MAX_NUM_TREES] = {NULL, NULL, NULL, NULL, NUL
 SDL_Texture* Tree::conifer[Tree::MAX_NUM_TREES] = {NULL, NULL, NULL, NULL, NULL};
 SDL_Texture* Tree::mixed[Tree::MAX_NUM_TREES] = {NULL, NULL, NULL, NULL, NULL};
 
-Tree::Tree(unsigned int numTrees):
+Tree::Tree(unsigned char numTrees):
 	amount(numTrees)
 {
 	switch(rand()%3) {
@@ -82,4 +82,11 @@ void Tree::close() {
 		SDL_DestroyTexture(mixed[i]);
 		mixed[i] = NULL;
 	}
+}
+
+void Tree::writeBuilding(std::ofstream* file) {
+	file->put((char)(TYPE >> 8));
+	file->put((char)(TYPE));
+	file->put((char)kind);
+	file->put((char)amount);
 }

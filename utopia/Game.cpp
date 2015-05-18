@@ -213,3 +213,36 @@ int Game::getMaxPosX() {
 int Game::getMaxPosY() {
 	return (map->maxY + map->maxX) / 2;
 }
+
+#include <fstream>
+
+void Game::loadGame(std::string fileName) {
+}
+
+void Game::saveGame(std::string fileName) {
+	std::ofstream cFile;
+	cFile.open(fileName.c_str());
+
+	cFile << cityName << std::endl;
+	cFile << mayorName << std::endl;
+	const long int dataSize = 13;
+	char gameData[dataSize] = {
+			evolutionLevel >> 8,
+			evolutionLevel & 0xFF,
+			actualDate.getYear() >> 8,
+			actualDate.getYear() & 0xFF,
+			actualDate.getMonth(),
+			actualDate.getDay(),
+			speed,
+			posX >> 8,
+			posX & 0xFF,
+			posY >> 8,
+			posY & 0xFF,
+			zoom,
+			angle
+	};
+	cFile.write(gameData, dataSize);
+	map->writeFile(&cFile);
+
+	cFile.close();
+}

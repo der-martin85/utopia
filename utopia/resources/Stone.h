@@ -22,6 +22,8 @@ public:
 		return TYPE;
 	}
 
+	void writeResource(std::ofstream* file);
+
 	void setAmount(unsigned int stone) {
 		if (stone > MAX_AMOUNT) {
 			stone = MAX_AMOUNT;

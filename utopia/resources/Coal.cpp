@@ -40,6 +40,12 @@ bool Coal::loadMedia(SDL_Renderer* renderer) {
     return success;
 }
 
+void Coal::writeResource(std::ofstream* file) {
+	file->put((char)(TYPE >> 8));
+	file->put((char)(TYPE));
+	file->put((char)amount);
+}
+
 void Coal::close() {
 	for (int i = 0; i < NUM_TEXTURES; i++) {
 		SDL_DestroyTexture(coalTexture[i]);

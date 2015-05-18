@@ -22,6 +22,8 @@ public:
 		return TYPE;
 	}
 
+	void writeResource(std::ofstream* file);
+
 	void setAmount(unsigned int copper) {
 		if (copper > MAX_AMOUNT) {
 			copper = MAX_AMOUNT;

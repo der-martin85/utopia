@@ -9,6 +9,7 @@
 #define BUILDING_H_
 
 #include "SDL2/SDL.h"
+#include <fstream>
 
 typedef int BuildingType_t;
 
@@ -30,6 +31,8 @@ public:
 	}
 
 	virtual BuildingType_t getBuildingType() = 0;
+
+	virtual void writeBuilding(std::ofstream* file) = 0;
 
 protected:
 	SDL_Texture** texture;

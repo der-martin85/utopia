@@ -22,6 +22,8 @@ public:
 		return TYPE;
 	}
 
+	void writeResource(std::ofstream* file);
+
 	void setAmount(unsigned int iron) {
 		if (iron > MAX_AMOUNT) {
 			iron = MAX_AMOUNT;

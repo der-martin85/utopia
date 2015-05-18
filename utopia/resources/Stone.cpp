@@ -41,6 +41,12 @@ bool Stone::loadMedia(SDL_Renderer* renderer) {
     return success;
 }
 
+void Stone::writeResource(std::ofstream* file) {
+	file->put((char)(TYPE >> 8));
+	file->put((char)(TYPE));
+	file->put((char)amount);
+}
+
 void Stone::close() {
 	for (int i = 0; i < NUM_TEXTURES; i++) {
 		SDL_DestroyTexture(stoneTexture[i]);

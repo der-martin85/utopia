@@ -41,6 +41,12 @@ bool Iron::loadMedia(SDL_Renderer* renderer) {
     return success;
 }
 
+void Iron::writeResource(std::ofstream* file) {
+	file->put((char)(TYPE >> 8));
+	file->put((char)(TYPE));
+	file->put((char)amount);
+}
+
 void Iron::close() {
 	for (int i = 0; i < NUM_TEXTURES; i++) {
 		SDL_DestroyTexture(ironTexture[i]);

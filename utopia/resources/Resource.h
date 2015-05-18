@@ -9,6 +9,7 @@
 #define RESOURCE_H_
 
 #include "SDL2/SDL.h"
+#include <fstream>
 typedef int ResourceType_t;
 
 class Resource {
@@ -32,6 +33,7 @@ public:
 		return amount;
 	}
 	virtual ResourceType_t getResourceType() = 0;
+	virtual void writeResource(std::ofstream* file) = 0;
 
 protected:
 	unsigned int amount;

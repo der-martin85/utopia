@@ -116,6 +116,29 @@ void Field::renderField(SDL_Renderer* renderer, SDL_Rect rect, int zoom, bool se
 	}
 }
 
+void Field::writeFile(std::ofstream* fstream) {
+	char data = 0;
+	if (land) {
+		data |= 0x80;
+	}
+	if (moist) {
+		data |= 0x40;
+	}
+	if (resource != NULL) {
+		data |= 0x08;
+	}
+	if (building != NULL) {
+		data |= 0x04;
+	}
+	fstream->put(data);
+	if (resource != NULL) {
+		resource->writeResource(fstream);
+	}
+	if (building != NULL) {
+		building->writeBuilding(fstream);
+	}
+}
+
 Field::~Field() {
 }
 
