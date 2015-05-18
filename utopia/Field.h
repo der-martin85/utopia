@@ -51,6 +51,7 @@ public:
 		resource = res;
 	}
 	void writeFile(std::ofstream* fstream);
+	void readFile(std::ifstream* fstream);
 
 	virtual ~Field();
 private:

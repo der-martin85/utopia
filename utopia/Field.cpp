@@ -139,6 +139,27 @@ void Field::writeFile(std::ofstream* fstream) {
 	}
 }
 
+void Field::readFile(std::ifstream* fstream) {
+	char data;
+	fstream->get(data);
+	if (data | 0x80) {
+		land = true;
+	} else {
+		land = false;
+	}
+	if (data | 0x40) {
+		moist = true;
+	} else {
+		moist = false;
+	}
+	if (data | 0x08) {
+		resource = Resource::loadResource(fstream);
+	}
+	if (data | 0x04) {
+		building = Building::loadBuilding(fstream);
+	}
+}
+
 Field::~Field() {
 }
 

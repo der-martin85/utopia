@@ -34,6 +34,7 @@ public:
 	}
 	virtual ResourceType_t getResourceType() = 0;
 	virtual void writeResource(std::ofstream* file) = 0;
+	static Resource* loadResource(std::ifstream* file);
 
 protected:
 	unsigned int amount;

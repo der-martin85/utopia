@@ -24,6 +24,7 @@ public:
 	}
 
 	void writeBuilding(std::ofstream* file);
+	static Tree* loadTree(std::ifstream* file);
 
 	unsigned char getNumTrees() const {
 		return amount;

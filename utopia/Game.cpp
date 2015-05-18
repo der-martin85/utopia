@@ -8,6 +8,8 @@
 #include "Game.h"
 
 Game::Game(int x, int y, Settings* settings):
+		cityName("testCity"),
+		mayorName("testMayor"),
 		evolutionLevel(0),
 		speed(0),
 		map(NULL),
@@ -217,6 +219,21 @@ int Game::getMaxPosY() {
 #include <fstream>
 
 void Game::loadGame(std::string fileName) {
+	std::ifstream cFile;
+	cFile.open(fileName.c_str());
+
+	cFile >> cityName >> mayorName;
+
+	const long int dataSize = 13;
+	char gameData[dataSize];
+	cFile.read(gameData, dataSize);
+
+	if (map != NULL) {
+		delete map;
+	}
+	map = Map::loadMap(&cFile);
+
+	cFile.close();
 }
 
 void Game::saveGame(std::string fileName) {

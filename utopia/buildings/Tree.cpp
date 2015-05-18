@@ -90,3 +90,17 @@ void Tree::writeBuilding(std::ofstream* file) {
 	file->put((char)kind);
 	file->put((char)amount);
 }
+
+Tree* Tree::loadTree(std::ifstream* file) {
+	Tree* ret = new Tree(0);
+
+	char kind, amount;
+
+	file->get(kind);
+	file->get(amount);
+
+	ret->kind = (forestKind)kind;
+	ret->amount = (unsigned char)amount;
+
+	return ret;
+}

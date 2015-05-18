@@ -33,6 +33,7 @@ public:
 	virtual BuildingType_t getBuildingType() = 0;
 
 	virtual void writeBuilding(std::ofstream* file) = 0;
+	static Building* loadBuilding(std::ifstream* file);
 
 protected:
 	SDL_Texture** texture;

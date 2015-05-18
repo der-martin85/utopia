@@ -30,7 +30,6 @@ public:
 	};
 
 	Map(int x, int y);
-	Map(std::ifstream* fstream);
 	~Map();
 	void generateMap(Uint8 oceans, Uint8 river, Uint8 waterLevel);
 
@@ -45,6 +44,8 @@ public:
 	void close();
 
 	void writeFile(std::ofstream* fstream);
+
+	static Map* loadMap(std::ifstream* fstream);
 
 	const int maxX;
 	const int maxY;
