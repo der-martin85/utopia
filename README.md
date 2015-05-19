@@ -5,5 +5,6 @@ Simulation Game. Mixture of Empire Earth and SimCity, but without money.
 * libsdl2
 * libsdl2_image
 * libsdl2_mixer
+* libsdl2_ttf
 * libboost_filesystem
 * libboost_system
