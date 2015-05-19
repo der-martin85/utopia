@@ -20,7 +20,7 @@ Resource* Resource::loadResource(std::ifstream* file) {
 	file->get(c);
 	type = ((unsigned int)c) << 8;
 	file->get(c);
-	type |= ((unsigned int)c);
+	type |= ((unsigned char)c);
 	file->get(c);
 	switch (type) {
 	case Coal::TYPE:

@@ -142,20 +142,20 @@ void Field::writeFile(std::ofstream* fstream) {
 void Field::readFile(std::ifstream* fstream) {
 	char data;
 	fstream->get(data);
-	if (data | 0x80) {
+	if (data & 0x80) {
 		land = true;
 	} else {
 		land = false;
 	}
-	if (data | 0x40) {
+	if (data & 0x40) {
 		moist = true;
 	} else {
 		moist = false;
 	}
-	if (data | 0x08) {
+	if (data & 0x08) {
 		resource = Resource::loadResource(fstream);
 	}
-	if (data | 0x04) {
+	if (data & 0x04) {
 		building = Building::loadBuilding(fstream);
 	}
 }
@@ -170,6 +170,10 @@ void Field::reset() {
 	if (resource != NULL) {
 		delete resource;
 		resource = NULL;
+	}
+	if (building != NULL) {
+		delete building;
+		building = NULL;
 	}
 }
 
