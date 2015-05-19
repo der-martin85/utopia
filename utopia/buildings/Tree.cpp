@@ -100,7 +100,7 @@ Tree* Tree::loadTree(std::ifstream* file) {
 	file->get(amount);
 
 	ret->kind = (forestKind)kind;
-	ret->amount = (unsigned char)amount;
+	ret->setNumTrees((unsigned char)amount);
 
 	return ret;
 }
