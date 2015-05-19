@@ -36,8 +36,8 @@ int main(int argc, char* argv[]) {
 	//Map f = Map(fieldx, fieldy);
 	//f.generateMap();
     Game game(fieldx, fieldy, &settings);
-    //game.loadGame("test.uc3");
-    game.generateMap(rand() % 16, rand() % 3, (rand() % 40) + 50);
+    game.loadGame("test.uc3");
+    //game.generateMap(rand() % 16, rand() % 3, (rand() % 40) + 50);
 
 	Menu menu(&settings);
 

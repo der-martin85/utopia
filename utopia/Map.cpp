@@ -409,8 +409,8 @@ Map* Map::loadMap(std::ifstream* fstream) {
 	char data[4];
 	fstream->read(data, 4);
 
-	int maxX = ((int)(data[0])) << 8 | data[1];
-	int maxY = ((int)(data[2])) << 8 | data[3];
+	int maxX = ((int)(data[0])) << 8 | (unsigned char)data[1];
+	int maxY = ((int)(data[2])) << 8 | (unsigned char)data[3];
 
 	Map* ret = new Map(maxX, maxY);
 

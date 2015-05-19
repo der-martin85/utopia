@@ -224,9 +224,21 @@ void Game::loadGame(std::string fileName) {
 
 	cFile >> cityName >> mayorName;
 
+	char tmp;
+	cFile.get(tmp);
+
 	const long int dataSize = 13;
 	char gameData[dataSize];
 	cFile.read(gameData, dataSize);
+
+	evolutionLevel = (int)(gameData[0]) << 8 | gameData[1];
+	actualDate = GameDate(gameData[2] << 8 | gameData[3],
+			gameData[4], gameData[5]);
+	speed = gameData[6];
+	posX = (int)(gameData[7]) << 8 | gameData[8];
+	posY = (int)(gameData[9]) << 8 | gameData[10];
+	zoom = gameData[11];
+	angle = gameData[12];
 
 	if (map != NULL) {
 		delete map;
