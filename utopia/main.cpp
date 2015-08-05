@@ -4,12 +4,12 @@
 #include <pthread.h>
 
 #include "Map.h"
-#include "RenderThread.h"
 #include "SoundThread.h"
 #include "menu/Menu.h"
 #include "Settings.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include "RenderThread.h"
 
 //const int SCREEN_WIDTH = 1280;
 //const int SCREEN_HEIGHT = 800;

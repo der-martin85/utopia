@@ -7,6 +7,9 @@
 
 #include "Game.h"
 
+SDL_Color Game::TextColor = {255, 255, 255};
+TTF_Font* Game::Font = NULL;
+
 Game::Game(int x, int y, Settings* settings):
 		cityName("testCity"),
 		mayorName("testMayor"),
@@ -20,10 +23,12 @@ Game::Game(int x, int y, Settings* settings):
 		angle(0),
 		buttonDown(false),
 		rt(NULL),
-		settings(settings)
+		settings(settings),
+		dateLabel(NULL)
 {
 	pthread_mutex_init(&mutex, NULL);
 	map = new Map(x, y);
+
 }
 
 Game::~Game() {
@@ -274,4 +279,30 @@ void Game::saveGame(std::string fileName) {
 	map->writeFile(&cFile);
 
 	cFile.close();
+}
+
+Uint32 Game::timeChange(Uint32 interval, void *param) {
+	Game* game = (Game*) param;
+	game->actualDate.addDays(1);
+	return interval;
+}
+
+bool Game::loadMedia(SDL_Renderer* renderer) {
+	Font = TTF_OpenFont("FreeSans.ttf", 24);
+	if (Font == NULL) {
+		return false;
+	}
+	dateLabel = new Label("1.1.0", Font, TextColor, 0, 0);
+	return true;
+}
+
+void Game::close() {
+	delete dateLabel;
+}
+
+void Game::renderDate(SDL_Renderer* renderer, int SCREEN_WIDTH, int SCREEN_HEIGHT) {
+	dateLabel->setText(actualDate.getDateString());
+	SDL_Rect rect = dateLabel->getRect();
+	dateLabel->setPos(SCREEN_WIDTH - (rect.w + 5), rect.y);
+	dateLabel->render(renderer);
 }

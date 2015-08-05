@@ -20,6 +20,7 @@ class RenderThread;
 #include "RenderThread.h"
 class Map;
 #include "Map.h"
+#include "gui/Label.h"
 
 class Game {
 public:
@@ -79,6 +80,12 @@ public:
 	void loadGame(std::string fileName);
 	void saveGame(std::string fileName);
 
+	static Uint32 timeChange (Uint32 interval, void *param);
+
+	bool loadMedia(SDL_Renderer* renderer);
+	void close();
+	void renderDate(SDL_Renderer* renderer, int SCREEN_WIDTH, int SCREEN_HEIGHT);
+
 protected:
 	void correctPosY() {
 		   if (posY < -getMaxPosY()) {
@@ -117,6 +124,11 @@ protected:
 	pthread_mutex_t mutex;
 	RenderThread* rt;
 	Settings* settings;
+
+	static TTF_Font *Font;
+	static SDL_Color TextColor;
+	Label*	dateLabel;
+	SDL_TimerID timer;
 };
 
 #endif /* GAME_H_ */

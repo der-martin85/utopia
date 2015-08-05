@@ -8,6 +8,8 @@
 #ifndef GAMEDATE_H_
 #define GAMEDATE_H_
 
+#include <string>
+
 class GameDate {
 public:
 	GameDate(int year = 0, char month = 1, char day = 1);
@@ -23,6 +25,16 @@ public:
 	}
 	char getDay() {
 		return day;
+	}
+
+	std::string getDateString() {
+		std::string ret = "";
+		ret += std::to_string((int)day);
+		ret += ".";
+		ret += std::to_string((int)month);
+		ret += ".";
+		ret += std::to_string(year);
+		return ret;
 	}
 protected:
 	int year;

@@ -5,9 +5,9 @@
  *      Author: Martin Ringwelski
  */
 
-#include "RenderThread.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
+#include "RenderThread.h"
 
 bool RenderThread::init() {
 	//Initialization flag
@@ -41,6 +41,7 @@ bool RenderThread::init() {
 void RenderThread::close() {
 	game->getMap()->close();
 	menu->close();
+	game->close();
 
 	SDL_DestroyRenderer(renderer);
 	renderer = NULL;
@@ -72,6 +73,7 @@ int RenderThread::threadMethod(void* param) {
 	t->init();
 	t->game->getMap()->loadMedia(t->renderer);
 	t->menu->loadMedia(t->renderer);
+	t->game->loadMedia(t->renderer);
 
 	pthread_mutex_lock(&(t->mutex));
 	do {
@@ -94,6 +96,7 @@ int RenderThread::threadMethod(void* param) {
 //		std::cout << "render" << std::endl;
 		t->game->getMap()->renderMap(t->renderer, t->game, t->settings->getScreenWidth(), t->settings->getScreenHeight());
 		t->menu->renderMenu(t->renderer, t->settings->getScreenHeight());
+		t->game->renderDate(t->renderer, t->settings->getScreenWidth(), t->settings->getScreenHeight());
 
 		SDL_RenderPresent(t->renderer);
 
