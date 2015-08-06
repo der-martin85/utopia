@@ -14,7 +14,7 @@ Game::Game(int x, int y, Settings* settings):
 		cityName("testCity"),
 		mayorName("testMayor"),
 		evolutionLevel(0),
-		speed(0),
+		speed(1),
 		map(NULL),
 		selected{-1, -1, -1, -1},
 		mX(0), mY(0), oldMX(-1), oldMY(-1),
@@ -28,7 +28,7 @@ Game::Game(int x, int y, Settings* settings):
 {
 	pthread_mutex_init(&mutex, NULL);
 	map = new Map(x, y);
-
+	timer = SDL_AddTimer(500, Game::timeChange, this);
 }
 
 Game::~Game() {
@@ -283,8 +283,11 @@ void Game::saveGame(std::string fileName) {
 
 Uint32 Game::timeChange(Uint32 interval, void *param) {
 	Game* game = (Game*) param;
-	game->actualDate.addDays(1);
-	return interval;
+	if (game->speed > 0) {
+		game->actualDate.addDays(1);
+		return interval;
+	}
+	return 0;
 }
 
 bool Game::loadMedia(SDL_Renderer* renderer) {

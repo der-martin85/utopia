@@ -12,12 +12,16 @@ GameDate::GameDate(int year, char month, char day):
 		month(month),
 		day(day)
 {
+	pthread_mutex_init(&mutex, NULL);
 }
 
 GameDate::~GameDate() {
+	pthread_mutex_destroy(&mutex);
 }
 
 void GameDate::addDays(int days) {
+	pthread_mutex_lock(&mutex);
+
 	day += days;
 
 	int maxDaysFeb = 28;
@@ -77,4 +81,5 @@ void GameDate::addDays(int days) {
 		month += 12;
 		year--;
 	}
+	pthread_mutex_unlock(&mutex);
 }
