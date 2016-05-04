@@ -116,6 +116,7 @@ int RenderThread::threadMethod(void* param) {
 RenderThread::RenderThread(Settings* settings, Game* game, Menu* menu):
 		quit(false),
 		fullscreen(false),
+		resolution(Settings::Resolution_t::R1024X768),
 		settings(settings),
 		window(NULL), renderer(NULL),
 		game(game),

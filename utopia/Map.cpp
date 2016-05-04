@@ -392,10 +392,10 @@ SDL_Rect Map::isoTo2D(int x, int y, Game* game) {
 
 void Map::writeFile(std::ofstream* fstream) {
 	char data[4] = {
-			maxX >> 8,
-			maxX,
-			maxY >> 8,
-			maxY
+			(char)(maxX >> 8),
+			(char)maxX,
+			(char)(maxY >> 8),
+			(char)maxY
 	};
 	fstream->write(data, 4);
 	for (int x = 0; x < maxX; x++) {
