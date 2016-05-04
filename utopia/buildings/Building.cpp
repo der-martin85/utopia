@@ -25,3 +25,6 @@ Building* Building::loadBuilding(std::ifstream* file) {
 
 	return ret;
 }
+
+void Building::changeTime(int days) {
+}

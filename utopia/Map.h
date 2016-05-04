@@ -41,6 +41,7 @@ public:
 	}
 	bool loadMedia(SDL_Renderer* renderer);
 	void renderMap(SDL_Renderer* renderer, Game* game, int SCREEN_WIDTH, int SCREEN_HEIGHT);
+	void timeChange(int days);
 	void close();
 
 	void writeFile(std::ofstream* fstream);

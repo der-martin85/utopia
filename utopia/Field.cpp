@@ -160,6 +160,12 @@ void Field::readFile(std::ifstream* fstream) {
 	}
 }
 
+void Field::timeChange(int days) {
+	if (building != NULL) {
+		building->changeTime(days);
+	}
+}
+
 Field::~Field() {
 }
 

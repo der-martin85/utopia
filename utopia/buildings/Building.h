@@ -30,6 +30,8 @@ public:
 		}
 	}
 
+	virtual void changeTime(int days);
+
 	virtual BuildingType_t getBuildingType() = 0;
 
 	virtual void writeBuilding(std::ofstream* file) = 0;

@@ -16,6 +16,7 @@ SDL_Texture* Tree::mixed[Tree::MAX_NUM_TREES] = {NULL, NULL, NULL, NULL, NULL};
 Tree::Tree(unsigned char numTrees):
 	amount(numTrees)
 {
+	daysGoneBy = rand()%Tree::MAX_DAYS_GONE_BY;
 	switch(rand()%3) {
 	case 0:
 		kind = BROADLEAF;
@@ -27,17 +28,7 @@ Tree::Tree(unsigned char numTrees):
 		kind = MIXED;
 		break;
 	}
-	switch(kind) {
-	case BROADLEAF:
-		texture = &(broadleaf[numTrees]);
-		break;
-	case CONIFER:
-		texture = &(conifer[numTrees]);
-		break;
-	case MIXED:
-		texture = &(mixed[numTrees]);
-		break;
-	}
+	setTexture();
 }
 
 Tree::~Tree() {
@@ -103,4 +94,30 @@ Tree* Tree::loadTree(std::ifstream* file) {
 	ret->setNumTrees((unsigned char)amount);
 
 	return ret;
+}
+
+void Tree::changeTime(int days) {
+	daysGoneBy += days;
+	if (daysGoneBy > Tree::MAX_DAYS_GONE_BY) {
+		daysGoneBy -= Tree::MAX_DAYS_GONE_BY;
+		amount++;
+		if (amount == Tree::MAX_NUM_TREES) {
+			amount--;
+		}
+		setTexture();
+	}
+}
+
+void Tree::setTexture() {
+	switch(kind) {
+	case BROADLEAF:
+		texture = &(broadleaf[amount]);
+		break;
+	case CONIFER:
+		texture = &(conifer[amount]);
+		break;
+	case MIXED:
+		texture = &(mixed[amount]);
+		break;
+	}
 }

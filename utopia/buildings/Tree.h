@@ -48,10 +48,15 @@ public:
 		this->amount = num;
 	}
 
+	virtual void changeTime(int days);
+
 	static bool loadMedia(SDL_Renderer* renderer);
 	static void close();
+	void setTexture();
 
 private:
+	static const unsigned int MAX_DAYS_GONE_BY = 365*100;
+
 	enum forestKind {
 		BROADLEAF,
 		CONIFER,
@@ -59,6 +64,7 @@ private:
 	} kind;
 
 	unsigned char amount;
+	unsigned int daysGoneBy;
 
 	static SDL_Texture* broadleaf[MAX_NUM_TREES];
 	static SDL_Texture* conifer[MAX_NUM_TREES];

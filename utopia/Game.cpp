@@ -285,6 +285,8 @@ Uint32 Game::timeChange(Uint32 interval, void *param) {
 	Game* game = (Game*) param;
 	if (game->speed > 0) {
 		game->actualDate.addDays(1);
+		game->map->timeChange(1);
+		interval = 1000 >> game->speed;
 		return interval;
 	}
 	return 0;

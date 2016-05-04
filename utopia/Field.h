@@ -50,6 +50,8 @@ public:
 		}
 		resource = res;
 	}
+	void timeChange(int days);
+
 	void writeFile(std::ofstream* fstream);
 	void readFile(std::ifstream* fstream);
 

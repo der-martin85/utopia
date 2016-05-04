@@ -422,3 +422,11 @@ Map* Map::loadMap(std::ifstream* fstream) {
 
 	return ret;
 }
+
+void Map::timeChange(int days) {
+    for (int x = 0; x < maxX; x++) {
+    	for (int y = 0; y < maxY; y++) {
+    		map[x][y].timeChange(days);
+    	}
+    }
+}
