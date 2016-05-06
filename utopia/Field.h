@@ -54,6 +54,7 @@ public:
 
 	void writeFile(std::ofstream* fstream);
 	void readFile(std::ifstream* fstream);
+	void setNeighbour(Field* north, Field* east, Field* south, Field* west);
 
 	virtual ~Field();
 private:
@@ -62,6 +63,8 @@ private:
 
 	Resource*	resource;
 	Building*	building;
+
+	Field* neighbours[4];
 
 	static SDL_Texture* sand;
 	static SDL_Texture* gras;

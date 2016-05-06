@@ -25,7 +25,8 @@ Field::Field():
 	land(true),
 	moist(false),
 	resource(NULL),
-	building(NULL)
+	building(NULL),
+	neighbours{NULL, NULL, NULL, NULL}
 {
 }
 
@@ -164,6 +165,13 @@ void Field::timeChange(int days) {
 	if (building != NULL) {
 		building->changeTime(days);
 	}
+}
+
+void Field::setNeighbour(Field* north, Field* east, Field* south, Field* west) {
+	neighbours[0] = north;
+	neighbours[1] = east;
+	neighbours[2] = south;
+	neighbours[3] = west;
 }
 
 Field::~Field() {
